@@ -32,7 +32,6 @@ public class Start extends Activity {
             Log.e("error", "Start->MainMenu");
             myIntent = new Intent(getApplicationContext(), MainMenu.class);
         }
-
         Handler handler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
