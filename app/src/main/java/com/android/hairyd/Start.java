@@ -18,11 +18,13 @@ public class Start extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
+
         Log.e("hairyd", "--Start--");
 
         final Intent myIntent;
 
         firstExecute = 0;
+
         if (firstExecute == 1) {
             Log.e("hairyd", "Start->ProfessorMenu");
             myIntent = new Intent(getApplicationContext(), MainMenu.class);
