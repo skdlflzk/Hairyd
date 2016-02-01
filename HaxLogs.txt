@@ -1,0 +1,56 @@
+20160107
+	1. CameraOn Activity 생성 후 카메라 기능 개발 중
+	2. 레이아웃 대충 수정
+
+*Start.TAG를 이용하여 모든 로그의 태그 설정
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ완료
+..액티비티에 들어가도 카메라 화면이 안보됨...ok
+
+..저장은 되지만 다시 미리보기가 되지 않음
+  -> 미리보기는 되지만 액티비티가 튕기는 현상 발생
+  -> camera가 자동 release() 되기때문
+  -> 또 파일 읽기권한이 없기때문  =>  뷰어할때 read가 필요하므로 그냥 둠
+  -> 없어진 카메라를 onResume시에 camera open시켜 해결
+  -> 촬영은 되는데 촬영 전 미리보기가 안됨... 카메라.startPreview()...ok
+
+..동영상 재생이 안됨
+  -> uri수정하니까 재생은 되는데 화면 중앙에 회전된 채로 재생
+  ->화면 중앙에 위치한채로 중앙에서 회전된 채로 재생
+  ->똑바로 회전을 성공했으나 좌우반전됨
+  ->좌우반전 됨, 무한 재생시킴
+  ->surfaceview를 invisible했다가 visible시키니 카메라 오류...
+//surfaceview를 invisible하면 동영상이 보이는데 카메라가 오류 오전 3:10 2016-01-08
+//              유지하면 동영상이 안보이는데 카메라는 정상...
+
+ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+..카메라 진행 시간(애니메이션이랑 같이?) 설정하기
+
+..자동 포커스 미구현 
+
+..화질 설정할지 미정
+
+..최대 촬영시간 설정할지 미정
+
+..버튼 미흡
+
+..다이얼로그 대신 버튼으로,.
+	new AlertDialog.Builder(this)
+						.setNegativeButton("확인하기", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								playVideo();
+							}
+						})
+						.setNeutralButton("다시 찍기", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which){
+								if(camera == null){
+									camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+								}					}
+						})
+						.setPositiveButton("보내기", new DialogInterface.OnClickListener() {
+							@Override
+							public void onClick(DialogInterface dialog, int which) {
+								sendVideo();
+							}
+						}).show();
