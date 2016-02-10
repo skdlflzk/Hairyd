@@ -13,24 +13,28 @@ import android.view.MenuItem;
 public class Start extends Activity {
 
     int firstExecute ;
-    static String TAG = "hairyd";
+    static String TAG = "P'hairy";
+    static String URL = "http://192.168.0.15:8080/";
+    static String SURL = "https://192.168.0.15:8080/";
+    static String VIDEOFOLDER = "/DCIM/hairyd";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
 
-        Log.e("hairyd", "--Start--");
+        Log.e(Start.TAG, "--Start--");
 
         final Intent myIntent;
 
         firstExecute = 0;
-
+        //로그인 값 저장되어있을 경우//
         if (firstExecute == 1) {
-            Log.e("hairyd", "Start->ProfessorMenu");
+       //     Log.e("hairyd", "Start->");
             myIntent = new Intent(getApplicationContext(), MainMenu.class);
         } else {
-            Log.e("error", "Start->MainMenu");
-            myIntent = new Intent(getApplicationContext(), MainMenu.class);
+            Log.d(Start.TAG, "Start->MainMenu");
+            myIntent = new Intent(getApplicationContext(), LoginActivity.class);
         }
         Handler handler = new Handler() {
             @Override

@@ -22,7 +22,7 @@ import android.widget.VideoView;
 import java.io.File;
 import java.util.Calendar;
 
-public class CameraOn extends Activity {
+public class CameraActivity extends Activity {
     //사진 찍기 가이드(1회), 촬영 후 저장, 서버로 전송(일단 파일로 아웃)
     Camera camera;
     SurfaceView surfaceView;
@@ -35,7 +35,7 @@ public class CameraOn extends Activity {
     String mRootPath;
     String FileName;
     String TAG = Start.TAG;
-    static final String VIDEOFOLDER = "DCIM/hairyd";
+    String VIDEOFOLDER = Start.VIDEOFOLDER;
 
     Button recordButton;
     Button sendButton;
@@ -43,19 +43,20 @@ public class CameraOn extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.camera_on);
+        setContentView(R.layout.camera_activity);
 
-        Log.d(TAG, "--CameraOn--");
+        Log.d(TAG, "--CameraActivity--");
 
-        mRootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + VIDEOFOLDER;
+        mRootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + VIDEOFOLDER;
         fRoot = new File(mRootPath);
         if (fRoot.exists() == false) {
+
             if (fRoot.mkdir() == false) {
-                Log.i(TAG, "CameraOn : 저장 폴더 생성 실패");
+                Log.i(TAG, "CameraActivity : 저장 폴더 생성 실패");
                 return;
             }
         } else {
-            //Log.i(TAG, "CameraOn : 저장 폴더가 존재함 정상");
+            //Log.i(TAG, "CameraActivity : 저장 폴더가 존재함 정상");
         }
 
         camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
@@ -85,7 +86,7 @@ public class CameraOn extends Activity {
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
             // TODO Auto-generated method stub
-            Log.i(TAG, "CameraOn : 미리보기 해제...");
+            Log.i(TAG, "CameraActivity : 미리보기 해제...");
 
             if (mrec != null) {
                 mrec.release();
@@ -102,7 +103,7 @@ public class CameraOn extends Activity {
         public void surfaceCreated(SurfaceHolder holder) {
             // TODO Auto-generated method stub
             // 표시할 영역의 크기를 알았으므로 해당 크기로 Preview를 시작합니다.
-            Log.i(TAG, "CameraOn : surface creating...");
+            Log.i(TAG, "CameraActivity : surface creating...");
 
             if (camera != null) {
                 try {
@@ -113,11 +114,11 @@ public class CameraOn extends Activity {
                     camera.setPreviewDisplay(holder);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Log.i(TAG, "CameraOn : 카메라 미리보기 화면 에러");
+                    Log.i(TAG, "CameraActivity : 카메라 미리보기 화면 에러");
                 }
             } else {
                 //		Toast.makeText(getApplicationContext(), "camera not available", Toast.LENGTH_LONG).show();
-                Log.e(TAG, "CameraOn : camera not available");
+                Log.e(TAG, "CameraActivity : camera not available");
                 finish();
             }
 
@@ -130,7 +131,7 @@ public class CameraOn extends Activity {
                 Camera.Parameters parameters = camera.getParameters();
                 parameters.setPreviewSize(width, height);
                 camera.startPreview();
-                Log.i(TAG, "CameraOn : camera startPreview");
+                Log.i(TAG, "CameraActivity : camera startPreview");
             }
         }
     };
@@ -182,7 +183,7 @@ public class CameraOn extends Activity {
 
         if (inUse == 0) {
             inUse = 1;
-            Log.i(TAG, "CameraOn : clicked! ready to record...");
+            Log.i(TAG, "CameraActivity : clicked! ready to record...");
 
             try {
 
@@ -207,12 +208,12 @@ public class CameraOn extends Activity {
 
                 mrec.prepare();
 
-                Log.d(TAG, "CameraOn : record start!");
+                Log.d(TAG, "CameraActivity : record start!");
 
                 mrec.start();
 
             } catch (Exception e) {
-                Log.e(TAG, "CameraOn : record fail");
+                Log.e(TAG, "CameraActivity : record fail");
                 mrec.stop();
                 mrec.reset();//없으면 mediarecorder went away with unhandled
                 mrec.release();
@@ -226,7 +227,7 @@ public class CameraOn extends Activity {
             inUse = 2;
             try {
 
-                Log.i(TAG, "CameraOn : clicked! record finishing...");
+                Log.i(TAG, "CameraActivity : clicked! record finishing...");
                 mrec.stop();
                 mrec.reset();
                 mrec.release();
@@ -237,7 +238,7 @@ public class CameraOn extends Activity {
                 camera.release();
                 camera = null;
             } catch (Exception e) {
-                Log.e(TAG, "CameraOn : fail to finish record...");
+                Log.e(TAG, "CameraActivity : fail to finish record...");
 
             } finally {
                 Toast.makeText(getApplicationContext(), "../DCIM/hairyd/에 저장되었습니다", Toast.LENGTH_LONG).show();
@@ -258,7 +259,7 @@ public class CameraOn extends Activity {
                 sendButton.setEnabled(true);
 
             } catch (Exception e) {
-                Log.e(TAG, "CameraOn : 영상 처리 실패...");
+                Log.e(TAG, "CameraActivity : 영상 처리 실패...");
             }
         } else if (inUse == 2) {
             playVideo();
@@ -266,7 +267,8 @@ public class CameraOn extends Activity {
     }
 
     public void onRecordButtonClicked(View v) {
-        Log.e(TAG, "CameraOn : 영상을 다시 촬영합니다");
+        Log.e(TAG, "CameraActivity : 영상을 다시 촬영합니다");
+
         mVideoView.setVisibility(View.INVISIBLE);
         inUse = 0;
 
@@ -290,12 +292,12 @@ public class CameraOn extends Activity {
                 camera.setDisplayOrientation(90);
                 camera.setPreviewDisplay(surfaceHolder);
 
-                if(camera==null) Log.e(TAG, "CameraOn : cam null");
+                if(camera==null) Log.e(TAG, "CameraActivity : cam null");
 
                 camera.startPreview();
 
             } catch (Exception e) {
-                Log.i(TAG, "CameraOn : 카메라 구동 에러");
+                Log.i(TAG, "CameraActivity : 카메라 구동 에러");
             }
         }
 
@@ -311,7 +313,7 @@ public class CameraOn extends Activity {
     }
 
     public void sendVideo() {
-        Log.i(TAG, "CameraOn : 보내기 시작");
+        Log.i(TAG, "CameraActivity : 보내기 시작");
         try {
             Intent mIntent = new Intent(Intent.ACTION_SEND);
             //mIntent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
@@ -325,19 +327,19 @@ public class CameraOn extends Activity {
             mIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
             startActivity(mIntent);
         } catch (Exception e) {
-            Log.e(TAG, "CameraOn : 전송 에러");
+            Log.e(TAG, "CameraActivity : 전송 에러");
         }
     }
 
     public void playVideo() {
-        Log.i(TAG, "CameraOn : 저장된 영상을 재생합니다");
+        Log.i(TAG, "CameraActivity : 저장된 영상을 재생합니다");
 
         try {
             mVideoView.setVideoURI(Uri.parse(mRootPath + FileName));
             mVideoView.requestFocus();
             mVideoView.start();
         } catch (Exception e) {
-            Log.i(TAG, "CameraOn : 비디오 재생 에러");
+            Log.i(TAG, "CameraActivity : 비디오 재생 에러");
         }
     }
 }

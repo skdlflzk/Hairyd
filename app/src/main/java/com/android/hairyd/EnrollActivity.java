@@ -8,16 +8,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-public class MainMenu extends Activity {
+public class EnrollActivity extends Activity {
 
-
-    static String TAG = Start.TAG;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main_menu);
-		Log.e(TAG, "--MainMenu--");
+		setContentView(R.layout.login_activity);
+		Log.e("hairyd", "--LoginActivity--");
 	}
 
 	@Override
@@ -33,20 +31,26 @@ public class MainMenu extends Activity {
 		// automatically handle clicks on the Home/Up button, so long
 		// as you specify a parent activity in AndroidManifest.xml.
 		int id = item.getItemId();
-		if (id == com.android.hairyd.R.id.action_settings) {
+		if (id == R.id.action_settings) {
 			return true;
 
 		}
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void onCameraButtonClicked(View v) {
-		Intent m_intent = new Intent(getApplicationContext(),CameraActivity.class);
+	public void onLoginClicked(View v) {
+		Intent m_intent = new Intent(getApplicationContext(),MainMenu.class);
 		startActivity(m_intent);
 		return ;
 	}
 
-	public void onViewButtonClicked(View v) {
+	public void onEnrollButtonClicked(View v) {
+		Intent m_intent = new Intent(getApplicationContext(),Start.class);
+		startActivity(m_intent);
+		return ;
+	}
+
+	public void onLookAroundButtonClicked(View v) {
 		Intent m_intent = new Intent(getApplicationContext(),Start.class);
 		startActivity(m_intent);
 		return ;

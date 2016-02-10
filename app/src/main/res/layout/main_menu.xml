@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Hairyd"
+        android:text="P'hairy."
         android:id="@+id/mainText"
         android:textSize="23dp"
         android:textColor = "#eeeeee"
