@@ -2,10 +2,12 @@ package com.android.hairyd;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -18,12 +20,14 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.VideoView;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.Calendar;
 
 public class CameraActivity extends Activity {
@@ -44,6 +48,9 @@ public class CameraActivity extends Activity {
     Button recordButton;
     Button sendButton;
     VideoView videoView;
+    ImageView animView;
+
+    boolean threadRun = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -253,6 +260,33 @@ public class CameraActivity extends Activity {
 
                 mrec.start();
 
+
+                //애니메이션 시작
+
+                animView = (ImageView) findViewById(R.id.animView);
+                animView.setVisibility(View.VISIBLE);
+                animView.bringToFront();
+                threadRun = true;
+                animView.setImageResource(R.drawable.face);
+
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            while (threadRun == true) {
+//                                animView.setImageResource(R.drawable.face);
+//                                Thread.sleep(1000);
+//                                animView.setImageResource(R.drawable.facel1);
+//                                Thread.sleep(1000);
+//                                animView.setImageResource(R.drawable.facel2);
+//                                Thread.sleep(1000);
+//                            }
+//                        } catch (Exception e) {
+//                            Log.e(TAG, "CameraActivity : Animation 에러");
+//                        }
+//                    }
+//                }).start();
+
             } catch (Exception e) {
                 Log.e(TAG, "CameraActivity : record fail");
                 mrec.stop();
@@ -266,7 +300,13 @@ public class CameraActivity extends Activity {
 
         } else if (inUse == 1) {
             inUse = 2;
+            threadRun = false;
             try {
+
+                //애니메이션 중단
+                ImageView animView = (ImageView) findViewById(R.id.animView);
+                animView.setVisibility(View.GONE);
+
 
                 Log.i(TAG, "CameraActivity : clicked! record finishing...");
                 mrec.stop();
@@ -288,7 +328,7 @@ public class CameraActivity extends Activity {
 
 
             //surfaceView.setVisibility(View.INVISIBLE);
-            Log.e(TAG, "CameraActivity : 왜영상 안재생?");
+
             recordButton = (Button) findViewById(R.id.recordButton);
             sendButton = (Button) findViewById(R.id.sendButton);
 
@@ -338,7 +378,42 @@ public class CameraActivity extends Activity {
     }
 
     public void playVideo() {
-        Log.i(TAG, "CameraActivity : 저장된 영상을 재생합니다");
+        Log.i(TAG, "CameraActivity : 저장된 영상을 재생, 추출합니다");
+        MediaMetadataRetriever mmr = new MediaMetadataRetriever();  //객체를 생성 해 주고
+        mmr.setDataSource(mRootPath + FileName);  //파일 패스를 넣어주 다음에
+
+
+        String time = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        long timeInmillisec = Long.parseLong(time);
+        final long interval = timeInmillisec*1000/20;
+//        long duration = timeInmillisec / 1000;
+//        long hours = duration / 3600;
+//        long minutes = (duration - hours * 3600) / 60;
+//        long seconds = duration - (hours * 3600 + minutes * 60);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            int i=1;
+                            MediaMetadataRetriever mmr = new MediaMetadataRetriever();  //객체를 생성 해 주고
+                            mmr.setDataSource(mRootPath + FileName);  //파일 패스를 넣어주 다음에
+
+                            while (i < 21) {
+
+                                Bitmap bitmap = mmr.getFrameAtTime(interval*i,MediaMetadataRetriever.OPTION_CLOSEST);
+                                try {
+                                    FileOutputStream out = new FileOutputStream(mRootPath+"/capture/"+i+".jpg");
+                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                                i ++;
+                            }
+                        } catch (Exception e) {
+                            Log.e(TAG, "CameraActivity : 캡쳐 에러");
+                        }
+                    }
+                }).start();
 
         try {
 
@@ -355,6 +430,7 @@ public class CameraActivity extends Activity {
             Log.e(TAG, "CameraActivity : 비디오 재생 에러");
         }
     }
+
 
     public void onRecordButtonClicked(View v) {
         Log.e(TAG, "CameraActivity : 영상을 다시 촬영합니다");

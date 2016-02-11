@@ -32,7 +32,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ID / 미용실 ID"
+        android:text="ID / 미용실ID"
         android:id="@+id/IDText"
         android:textSize="23dp"
         android:textColor = "#555555"
