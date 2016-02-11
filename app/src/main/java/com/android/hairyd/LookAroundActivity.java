@@ -25,7 +25,6 @@ import java.io.File;
 import java.util.Calendar;
 
 public class LookAroundActivity extends Activity {
-    //사진 찍기 가이드(1회), 촬영 후 저장, 서버로 전송(일단 파일로 아웃)
 
     String TAG = Start.TAG;
     String URL = Start.URL;
@@ -41,7 +40,7 @@ public class LookAroundActivity extends Activity {
         webView = (WebView) findViewById( R.id.webView);
         webView.setWebViewClient(new WebViewClient());
         //webView.loadUrl(URL);
-        webView.loadUrl("http://naver.com");
+        webView.loadUrl("http://google.com");
     }
 
     @Override

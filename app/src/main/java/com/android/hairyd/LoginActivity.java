@@ -14,12 +14,13 @@ import com.loopj.android.http.RequestParams;
 
 
 public class LoginActivity extends Activity {
+	String TAG = Start.TAG;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login_activity);
-		Log.e("hairyd", "--LoginActivity--");
+		Log.e(TAG, "--LoginActivity--");
 	}
 
 	@Override
@@ -50,7 +51,7 @@ public class LoginActivity extends Activity {
 		final String pwInputString = pwInput.getText().toString();
 
 		if( idInputString.equals("")|idInputString == null |  pwInputString.equals("")| pwInputString == null ){
-			Log.i("hairyd", "LoginActivity; id = "+ idInputString + ", pw = " + pwInputString);
+			Log.i(TAG, "LoginActivity; id = "+ idInputString + ", pw = " + pwInputString);
 			Toast.makeText(getApplication(), "ID와 패스워드를 입력해주세요 ;"+Toast.LENGTH_LONG, Toast.LENGTH_LONG).show();
 		}else {
 			RequestParams params = new RequestParams();
@@ -65,7 +66,7 @@ public class LoginActivity extends Activity {
 //			asyncHttpSet.get("logintest.php", params, new AsyncHttpResponseHandler() {
 //				@Override
 //				public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-//					Log.i("hairyd", "LoginActivity; success");
+//					Log.i(TAG, "LoginActivity; success");
 //
 //					SharedPreferences sharedPreferences = getSharedPreferences("test", MODE_PRIVATE);
 //					SharedPreferences.Editor editor = sharedPreferences.edit();

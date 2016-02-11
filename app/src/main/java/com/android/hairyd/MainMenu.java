@@ -47,8 +47,8 @@ public class MainMenu extends Activity {
 	}
 
 	public void onViewButtonClicked(View v) {
-		Intent m_intent = new Intent(getApplicationContext(),Start.class);
-		startActivity(m_intent);
+		//Intent m_intent = new Intent(getApplicationContext(),Start.class);
+		//startActivity(m_intent);
 		return ;
 	}
 

@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/Hairyd.iml" filepath="$PROJECT_DIR$/Hairyd.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hairyd.iml" filepath="$PROJECT_DIR$/hairyd.iml" />
       <module fileurl="file://$PROJECT_DIR$/hairyd.iml" filepath="$PROJECT_DIR$/hairyd.iml" />
     </modules>
   </component>

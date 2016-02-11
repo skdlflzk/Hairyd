@@ -2,6 +2,8 @@ package com.android.hairyd;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.media.CamcorderProfile;
 import android.media.MediaPlayer;
@@ -16,6 +18,8 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.MediaController;
+import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -39,13 +43,14 @@ public class CameraActivity extends Activity {
 
     Button recordButton;
     Button sendButton;
-    VideoView mVideoView;
+    VideoView videoView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.camera_activity);
 
-        Log.d(TAG, "--CameraActivity--");
+        Log.e(TAG, "--CameraActivity--");
 
         mRootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + VIDEOFOLDER;
         fRoot = new File(mRootPath);
@@ -60,13 +65,19 @@ public class CameraActivity extends Activity {
         }
 
         camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
-        mVideoView = (VideoView) findViewById(R.id.videoView);
-        mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+
+        videoView = (VideoView) findViewById(R.id.videoView);
+        MediaController mediaController = new MediaController(this);
+        mediaController.setAnchorView(videoView);
+        videoView.setMediaController(mediaController);
+
+        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                mVideoView.start();
+                videoView.start();
             }
         });
+
         surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         surfaceView.setClickable(true);
         surfaceView.setOnClickListener(new View.OnClickListener() {
@@ -79,6 +90,7 @@ public class CameraActivity extends Activity {
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(surfaceListener);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+//        surfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
     }
 
@@ -86,7 +98,7 @@ public class CameraActivity extends Activity {
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
             // TODO Auto-generated method stub
-            Log.i(TAG, "CameraActivity : 미리보기 해제...");
+            Log.i(TAG, "CameraActivity : surface Destroyed! 미리보기가 해제됩니다");
 
             if (mrec != null) {
                 mrec.release();
@@ -103,7 +115,7 @@ public class CameraActivity extends Activity {
         public void surfaceCreated(SurfaceHolder holder) {
             // TODO Auto-generated method stub
             // 표시할 영역의 크기를 알았으므로 해당 크기로 Preview를 시작합니다.
-            Log.i(TAG, "CameraActivity : surface creating...");
+            Log.i(TAG, "CameraActivity : surface creating! 카메라 null이 아니면 미리보기 시작");
 
             if (camera != null) {
                 try {
@@ -117,7 +129,7 @@ public class CameraActivity extends Activity {
                     Log.i(TAG, "CameraActivity : 카메라 미리보기 화면 에러");
                 }
             } else {
-                //		Toast.makeText(getApplicationContext(), "camera not available", Toast.LENGTH_LONG).show();
+
                 Log.e(TAG, "CameraActivity : camera not available");
                 finish();
             }
@@ -164,19 +176,48 @@ public class CameraActivity extends Activity {
             camera.release();
             camera = null;
         }
+
         if (mrec != null) {
             mrec.release();
             mrec = null;
         }
+
         super.onPause();
     }
 
+
     @Override
-    protected void onResume() {
-        super.onResume();
-        if (camera == null) {
-            camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+    protected void onRestart() {
+        super.onRestart();
+        Log.i(TAG, "CameraActivity : restart...");
+
+//        Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
+//        startActivity(intent);
+//        finish();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        inUse = 0;
+        if (camera != null) {
+            camera.stopPreview();
+            camera.setPreviewCallback(null);
+
+            camera.release();
+            camera = null;
         }
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        inUse = 0;
+        Log.e(TAG, "CameraActivity : destroy! should file deleted?");
+
+        finish();
+
     }
 
     public void screenClicked() {
@@ -237,40 +278,101 @@ public class CameraActivity extends Activity {
                 camera.lock();
                 camera.release();
                 camera = null;
+
             } catch (Exception e) {
                 Log.e(TAG, "CameraActivity : fail to finish record...");
 
             } finally {
                 Toast.makeText(getApplicationContext(), "../DCIM/hairyd/에 저장되었습니다", Toast.LENGTH_LONG).show();
-
             }
 
+
+            //surfaceView.setVisibility(View.INVISIBLE);
+            Log.e(TAG, "CameraActivity : 왜영상 안재생?");
+            recordButton = (Button) findViewById(R.id.recordButton);
+            sendButton = (Button) findViewById(R.id.sendButton);
+
+
+            videoView = (VideoView) findViewById(R.id.videoView);
+            MediaController mediaController = new MediaController(this);
+            mediaController.setAnchorView(videoView);
+
+
+            videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    videoView.start();
+                }
+            });
+
             try {
-                //surfaceView.setVisibility(View.INVISIBLE);
-               mVideoView.setVisibility(View.VISIBLE);
+                videoView.setVisibility(View.VISIBLE);
+                videoView.setEnabled(true);
+
+                recordButton.setVisibility(View.VISIBLE);
+                recordButton.setEnabled(true);
+                sendButton.setVisibility(View.VISIBLE);
+                sendButton.setEnabled(true);
+                surfaceView.setVisibility(View.INVISIBLE);
+                surfaceView.setBackgroundColor(Color.parseColor("#00000000"));
 
                 playVideo();
 
-                recordButton = (Button) findViewById(R.id.recordButton);
-                sendButton = (Button) findViewById(R.id.sendButton);
-                recordButton.setVisibility(View.VISIBLE);
-                sendButton.setVisibility(View.VISIBLE);
-                recordButton.setEnabled(true);
-                sendButton.setEnabled(true);
-
             } catch (Exception e) {
-                Log.e(TAG, "CameraActivity : 영상 처리 실패...");
+                inUse = 0;
             }
         } else if (inUse == 2) {
-            playVideo();
+
+
+            try {
+                if (videoView.isPlaying() == false) {
+                    playVideo();
+                } else {
+                    Log.i(TAG, "CameraActivity : 비디오가 재생 중입니다");
+                    videoView.resume();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "CameraActivity : 영상 재생 실패...");
+            }
+        }
+    }
+
+    public void playVideo() {
+        Log.i(TAG, "CameraActivity : 저장된 영상을 재생합니다");
+
+        try {
+
+            Uri uri = Uri.parse(mRootPath + FileName);
+            if (uri != null) {
+
+                videoView.setVideoURI(uri);
+                videoView.requestFocus();
+                videoView.start();
+            } else {
+                Log.e(TAG, "CameraActivity : 비디오 생성 중");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "CameraActivity : 비디오 재생 에러");
         }
     }
 
     public void onRecordButtonClicked(View v) {
         Log.e(TAG, "CameraActivity : 영상을 다시 촬영합니다");
 
-        mVideoView.setVisibility(View.INVISIBLE);
+        File fileName = new File(mRootPath + FileName);
+        if (fileName.delete()) {
+            Log.e(TAG, "CameraActivity : 영상이 삭제됨");
+        } else {
+            Log.e(TAG, "CameraActivity : 영상 삭제 실패!!");
+        }
+
+
+        Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
+        startActivity(intent);
+        finish();
+
         inUse = 0;
+/*
 
         if (camera != null) {
             camera.stopPreview();
@@ -282,7 +384,17 @@ public class CameraActivity extends Activity {
             mrec = null;
         }
 
-//        surfaceView.setVisibility(View.VISIBLE);
+        surfaceView.setVisibility(View.VISIBLE);
+        surfaceView.setEnabled(true);
+
+        videoView.pause();
+        videoView.setVisibility(View.GONE);
+        videoView = null;
+
+
+
+        recordButton.setVisibility(View.GONE);
+        sendButton.setVisibility(View.GONE);
 
         if (camera == null) {
             try {
@@ -291,7 +403,7 @@ public class CameraActivity extends Activity {
                 camera.setParameters(param);
                 camera.setDisplayOrientation(90);
                 camera.setPreviewDisplay(surfaceHolder);
-
+                Log.d(TAG, "CameraActivity : camara ReOperating...");
                 if(camera==null) Log.e(TAG, "CameraActivity : cam null");
 
                 camera.startPreview();
@@ -301,12 +413,9 @@ public class CameraActivity extends Activity {
             }
         }
 
-        recordButton.setVisibility(View.INVISIBLE);
-        sendButton.setVisibility(View.INVISIBLE);
-        recordButton.setEnabled(false);
-        sendButton.setEnabled(false);
-
+*/
     }
+
 
     public void onSendButtonClicked(View v) {
         sendVideo();
@@ -314,32 +423,64 @@ public class CameraActivity extends Activity {
 
     public void sendVideo() {
         Log.i(TAG, "CameraActivity : 보내기 시작");
+        inUse = 0;
+
         try {
+            videoView.pause();
+            videoView = null;
+
             Intent mIntent = new Intent(Intent.ACTION_SEND);
             //mIntent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
             mIntent.setType("video/*");
-            mIntent.putExtra(Intent.EXTRA_EMAIL,"skdlflzk@naver.com");
+            mIntent.putExtra(Intent.EXTRA_EMAIL, "skdlflzk@naver.com");
             File f = new File(mRootPath + FileName);
-            if(!f.exists()){
+            if (!f.exists()) {
                 Toast.makeText(getApplicationContext(), "영상 파일이 없습니다", Toast.LENGTH_LONG).show();
             }
+
             Uri fileUri = Uri.fromFile(f);
             mIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-            startActivity(mIntent);
+            startActivityForResult(mIntent, 1001);
+
         } catch (Exception e) {
             Log.e(TAG, "CameraActivity : 전송 에러");
         }
     }
 
-    public void playVideo() {
-        Log.i(TAG, "CameraActivity : 저장된 영상을 재생합니다");
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         try {
-            mVideoView.setVideoURI(Uri.parse(mRootPath + FileName));
-            mVideoView.requestFocus();
-            mVideoView.start();
+            switch (data.getIntExtra("ErrCode", 10)) {
+                case 10:
+                    Log.e(TAG, "CameraActivity : 디폴트");
+                    Toast.makeText(getApplicationContext(), "디폴트 값?", Toast.LENGTH_LONG).show();
+                    break;
+                case 1:
+                    Log.e(TAG, "CameraActivity : 이상한 값");
+                    Toast.makeText(getApplicationContext(), "전송이 안됨?", Toast.LENGTH_LONG).show();
+                    break;
+                case 0:
+                    Log.e(TAG, "CameraActivity : 이상한 값");
+                    Toast.makeText(getApplicationContext(), "전송이 안됨?", Toast.LENGTH_LONG).show();
+                    break;
+                default:
+                    Log.e(TAG, "CameraActivity : 이상한 값");
+                    Toast.makeText(getApplicationContext(), "이상한 값?", Toast.LENGTH_LONG).show();
+                    break;
+
+            }
+            Log.e(TAG, "CameraActivity :  스위치?");
         } catch (Exception e) {
-            Log.i(TAG, "CameraActivity : 비디오 재생 에러");
+            File fileName = new File(mRootPath + FileName);
+            if (fileName.delete()) {
+                Log.e(TAG, "CameraActivity : ActivityResult...영상이 삭제됨");
+            } else {
+                Log.e(TAG, "CameraActivity : 영상 삭제 실패!!");
+            }
+            Intent intent = getIntent();
+            startActivity(intent);
+            finish();
         }
     }
 }
