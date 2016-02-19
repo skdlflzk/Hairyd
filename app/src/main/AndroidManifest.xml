@@ -34,7 +34,9 @@
 
         </activity>
     <activity android:name=".MainMenu"    />
-    <activity android:name=".EnrollActivity"    />
+    <activity android:name=".EnrollActivity"   android:launchMode="singleInstance"
+        android:screenOrientation="portrait"
+        android:theme="@android:style/Theme.Translucent" />
     <activity android:name=".LoginActivity"    />
     <activity android:name=".CameraActivity"  />
 

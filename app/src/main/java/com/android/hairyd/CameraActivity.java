@@ -244,7 +244,7 @@ public class CameraActivity extends Activity {
                 mrec.setVideoSource(MediaRecorder.VideoSource.CAMERA);
                 mrec.setAudioSource(MediaRecorder.AudioSource.MIC);//오디오는 필요없음
                 mrec.setOrientationHint(270);
-                mrec.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_720P));
+                mrec.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_1080P));  //가장 높은 화질을 고르게 선택
 
                 Calendar calendar = Calendar.getInstance();
                 FileName = String.format("/SH%02d%02d%02d%02d%02d%02d.mp4", calendar.get(Calendar.YEAR) % 100,

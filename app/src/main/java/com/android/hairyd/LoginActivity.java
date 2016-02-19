@@ -12,6 +12,12 @@ import android.widget.Toast;
 
 import com.loopj.android.http.RequestParams;
 
+import twitter4j.AccountSettings;
+import twitter4j.Twitter;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
+import twitter4j.auth.RequestToken;
+
 
 public class LoginActivity extends Activity {
 	String TAG = Start.TAG;
@@ -21,6 +27,26 @@ public class LoginActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login_activity);
 		Log.e(TAG, "--LoginActivity--");
+		try {
+			Twitter twitter = new TwitterFactory().getInstance();
+			// https://dev.twitter.com/apps 에서 앱 선택하면 Consumer key와 Consumer secret을 확인할 수 있다.
+			twitter.setOAuthConsumer(
+					"Consumer key",
+					"Consumer secret");
+			RequestToken requestToken = twitter.getOAuthRequestToken();
+			String authorizationURL = requestToken.getAuthorizationURL();
+
+			// authorizationURL을 웹뷰에서 띄우고 유저가 로그인 하면 PIN 번호가 나온다.
+
+			AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, pinNumber);
+			twitter.setOAuthAccessToken(accessToken);
+			AccountSettings settings = twitter.getAccountSettings();
+			// 계정이름
+			String screenName = settings.getScreenName();
+		}catch(Exception e){
+			Log.e(TAG, "twit error");
+		}
+
 	}
 
 	@Override
@@ -84,6 +110,12 @@ public class LoginActivity extends Activity {
 			PersistentCookieStore persistentCookieStore = new PersistentCookieStore(getApplicationContext());
 			AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
 			asyncHttpClient.setCookieStore(persistentCookieStore);
+
+			Consumer Key (API Key)	y8IChpIaeJpprBRwc7NHSA6ad
+Consumer Secret (API Secret)	0FSXyFblozOHZJAfnbYUoZTmviOssqOkc366QPLsqXfijF98J5
+Access Level	Read and write (modify app permissions)
+Owner	downqu
+Owner ID	2471321096
 */
 			Intent m_intent = new Intent(getApplicationContext(), MainMenu.class);
 			startActivity(m_intent);
@@ -95,7 +127,9 @@ public class LoginActivity extends Activity {
 
 	public void onEnrollButtonClicked(View v) {
 		Intent m_intent = new Intent(getApplicationContext(),EnrollActivity.class);
-		startActivity(m_intent);
+		m_intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);   // 이거 안해주면 안됨
+		getApplicationContext().startActivity(m_intent);
+		//startActivity(m_intent);
 		return ;
 	}
 

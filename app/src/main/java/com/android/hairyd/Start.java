@@ -27,7 +27,7 @@ public class Start extends Activity {
 
         final Intent myIntent;
 
-        firstExecute = 0;
+        firstExecute = 1;
         //로그인 값 저장되어있을 경우//
         if (firstExecute == 1) {
        //     Log.e("hairyd", "Start->");

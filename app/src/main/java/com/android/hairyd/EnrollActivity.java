@@ -14,8 +14,8 @@ public class EnrollActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.login_activity);
-		Log.e("hairyd", "--LoginActivity--");
+		setContentView(R.layout.enroll_activity);
+		Log.e("hairyd", "--EnrollActivity--");
 	}
 
 	@Override

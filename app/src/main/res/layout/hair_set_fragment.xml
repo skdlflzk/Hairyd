@@ -2,42 +2,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#ffddaa"
-    android:gravity="top"
-    tools:context="com.android.hairyd.MainMenu"
+    android:background="#00000000"
+   tools:context=".start"
     android:paddingRight="10dp"
     android:paddingLeft="10dp"
     android:id ="@+id/rid">
-<!-- 뷰 페이져
-    <android.support.v4.view.ViewPager
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#ffffffff"
-    >
-    </android.support.v4.view.ViewPager>
--->
-    <!-- mainText    IDText>LoginButton>IDinpun,Enroll>LookAround
-                           >PWText      >PWInput       -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="P'hairy.회원가입"
-        android:id="@+id/MainText"
-        android:textSize="23dp"
-        android:textColor = "#555555"
-        android:layout_marginTop="78dp"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/IDText" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ID / 미용실 ID"
+        android:text="P'hairy.머리하기"
+        android:id="@+id/MainText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="103dp" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ID / 미용실ID"
         android:id="@+id/IDText"
         android:textSize="23dp"
         android:textColor = "#555555"
         android:layout_centerVertical="true"
-        android:layout_alignParentStart="true" />
+       />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -1,0 +1,64 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00ffaaaa"
+   tools:context=".start"
+    android:paddingRight="10dp"
+    android:paddingLeft="10dp"
+    android:id ="@+id/rid">
+<!-- 뷰 페이져
+    <android.support.v4.view.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#ffffffff"
+    >
+    </android.support.v4.view.ViewPager>
+-->
+    <!-- mainText    IDText>LoginButton>IDinpun,Enroll>LookAround
+                           >PWText      >PWInput       -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="P'hairy"
+        android:id="@+id/MainText"
+        android:textSize="23dp"
+        android:textColor = "#ddaa33"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="103dp" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="둘러보기"
+        android:id="@+id/IDText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_centerVertical="true"
+       />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="PW/고객번호"
+        android:id="@+id/PWText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_below="@+id/IDText"
+        android:layout_alignLeft="@+id/IDText"/>
+
+    <Button
+        android:id="@+id/LoginButton"
+        android:textColor = "#eeeeee"
+        android:background="@drawable/login"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:textSize="20dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp" />
+
+
+</RelativeLayout>
