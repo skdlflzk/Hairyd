@@ -23,68 +23,34 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="ID / 미용실ID"
+        android:text="내 ID"
         android:id="@+id/IDText"
         android:textSize="23dp"
         android:textColor = "#555555"
-        android:layout_centerVertical="true"
-       />
+        android:layout_below="@+id/MainText"
+        android:layout_alignParentStart="true" />
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="PW/고객번호"
+        android:text="내 모델"
         android:id="@+id/PWText"
         android:textSize="23dp"
         android:textColor = "#555555"
         android:layout_below="@+id/IDText"
         android:layout_alignLeft="@+id/IDText"/>
 
-    EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:hint="ID 입력해요"
-        android:id="@+id/IDInput"
-        android:textSize="19dp"
-        android:textColor = "#ffffff"
-        android:layout_toRightOf="@+id/IDText"
-        android:layout_toLeftOf="@+id/LoginButton"
-        android:layout_alignTop="@+id/IDText"/>
-    EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:hint="PW 입력해요"
-        android:id="@+id/PWInput"
-        android:textSize="19dp"
-        android:textColor = "#ffffff"
-        android:layout_toRightOf="@+id/PWText"
-        android:layout_toLeftOf="@+id/LoginButton"
-        android:layout_alignTop="@+id/PWText" />
-    Button
-        android:id="@+id/LoginButton"
-        android:textColor = "#eeeeee"
-        android:background="#222222"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:textSize="20dp"
-        android:text="로그인"
-        android:onClick="onLoginClicked"
-        android:layout_alignTop="@+id/IDInput"
-        android:layout_alignParentRight="true"/>
-
 
     <Button
-        android:id="@+id/EnrollButton"
+        android:id="@+id/TakeButton"
         android:textColor = "#eeeeee"
         android:background="#222222"
         android:layout_width="120dp"
         android:layout_height="35dp"
         android:textSize="13dp"
-        android:text="회원가입"
-        android:onClick="onEnrollButtonClicked"
-        android:layout_below="@+id/PWText"
+        android:text="촬영하기"
+        android:layout_alignParentBottom="true"
         android:layout_alignEnd="@+id/MainText"
-        android:layout_marginTop="88dp" />
+        android:layout_marginBottom="74dp" />
 
 
 </RelativeLayout>

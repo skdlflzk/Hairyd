@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -37,10 +38,15 @@ public class LookAroundActivity extends Activity {
 
         Log.d(TAG, "--LookAroundActivity--");
 
-        webView = (WebView) findViewById( R.id.webView);
-        webView.setWebViewClient(new WebViewClient());
         //webView.loadUrl(URL);
-        webView.loadUrl("http://google.com");
+
+                webView = (WebView) findViewById( R.id.webView);
+                webView.setWebViewClient(new WebViewClient());
+                WebSettings set = webView.getSettings();
+                set.setJavaScriptEnabled(true);
+                set.setBuiltInZoomControls(true);
+                webView.loadUrl("http://google.com");
+
     }
 
     @Override

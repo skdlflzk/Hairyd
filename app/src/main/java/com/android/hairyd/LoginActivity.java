@@ -2,52 +2,108 @@ package com.android.hairyd;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.loopj.android.http.RequestParams;
 
+import java.util.List;
+
 import twitter4j.AccountSettings;
+import twitter4j.Paging;
+import twitter4j.Status;
 import twitter4j.Twitter;
+import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 import twitter4j.auth.RequestToken;
+import twitter4j.conf.ConfigurationBuilder;
 
 
 public class LoginActivity extends Activity {
 	String TAG = Start.TAG;
 
+	private Twitter twitter;
+	private AccessToken accessToken = null;
+	private RequestToken requestToken = null;
+
+	private Status status = null;
+	private static final String CONSUMER_KEY = "y8IChpIaeJpprBRwc7NHSA6ad";
+	private static final String CONSUMER_SECRET = "0FSXyFblozOHZJAfnbYUoZTmviOssqOkc366QPLsqXfijF98J";
+
+
+	/** 생성. */
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.login_activity);
+
 		Log.e(TAG, "--LoginActivity--");
-		try {
-			Twitter twitter = new TwitterFactory().getInstance();
-			// https://dev.twitter.com/apps 에서 앱 선택하면 Consumer key와 Consumer secret을 확인할 수 있다.
-			twitter.setOAuthConsumer(
-					"Consumer key",
-					"Consumer secret");
-			RequestToken requestToken = twitter.getOAuthRequestToken();
-			String authorizationURL = requestToken.getAuthorizationURL();
 
-			// authorizationURL을 웹뷰에서 띄우고 유저가 로그인 하면 PIN 번호가 나온다.
 
-			AccessToken accessToken = twitter.getOAuthAccessToken(requestToken, pinNumber);
-			twitter.setOAuthAccessToken(accessToken);
-			AccountSettings settings = twitter.getAccountSettings();
-			// 계정이름
-			String screenName = settings.getScreenName();
-		}catch(Exception e){
-			Log.e(TAG, "twit error");
-		}
+		Button twitterButton = (Button) findViewById(R.id.twitterButton);
+		twitterButton.setOnClickListener(new Button.OnClickListener(){
+			@Override
+			public void onClick(View view) {
 
+
+				ConfigurationBuilder builder = new ConfigurationBuilder();
+				builder.setOAuthConsumerKey(CONSUMER_KEY);
+				builder.setOAuthConsumerSecret(CONSUMER_SECRET);
+				twitter4j.conf.Configuration configuration = builder.build();
+				twitter = new TwitterFactory(configuration).getInstance();
+
+				new Thread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						try
+						{
+							requestToken = twitter.getOAuthRequestToken("sample://twitter");
+							//성공시 requestTOken에 해당정보가 담긴다
+							//그 후 requestToken을 반드시 세션에 담아주어야 함.
+
+						}
+						catch (TwitterException e)
+						{
+							e.printStackTrace();
+						}
+
+						Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestToken.getAuthorizationURL()));
+						intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_SINGLE_TOP);
+						startActivity(intent);
+					}
+				}).start();
+			}
+		});
 	}
+
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+		Log.e(TAG, "success");
+//		Uri uri = intent.getData();
+//		if (uri != null && CALLBACK_URL.getScheme().equals(uri.getScheme())) {
+//			String oauth_verifier = uri.getQueryParameter("oauth_verifier");
+//			try {
+//				acToken = twitter.getOAuthAccessToken(rqToken, oauth_verifier);
+//				saveData(S_CONSUMER_KEY, acToken.getToken());
+//				saveData(S_CONSUMER_SECRET, acToken.getTokenSecret());
+//			} catch (TwitterException e) {
+//				Log.e("coolsharp", e.getMessage());
+//			}
+//		}
+	}
+
+
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -110,6 +166,7 @@ public class LoginActivity extends Activity {
 			PersistentCookieStore persistentCookieStore = new PersistentCookieStore(getApplicationContext());
 			AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
 			asyncHttpClient.setCookieStore(persistentCookieStore);
+
 
 			Consumer Key (API Key)	y8IChpIaeJpprBRwc7NHSA6ad
 Consumer Secret (API Secret)	0FSXyFblozOHZJAfnbYUoZTmviOssqOkc366QPLsqXfijF98J5

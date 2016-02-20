@@ -67,25 +67,25 @@ public class MainMenu extends ActionBarActivity implements OnClickListener{
 			}
 		};
 
-//		thread = new Thread(){
-//			//run은 jvm이 쓰레드를 채택하면, 해당 쓰레드의 run메서드를 수행한다.
-//			public void run() {
-//				super.run();
-//				while(true){
-//					try {
-//						Thread.sleep(4000);
-//						handler.sendEmptyMessage(0);
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//
-//
-//				}
-//			}
-//		};
-//		thread.start();
-//
+		thread = new Thread(){
+			//run은 jvm이 쓰레드를 채택하면, 해당 쓰레드의 run메서드를 수행한다.
+			public void run() {
+				super.run();
+				while(true){
+					try {
+						Thread.sleep(4000);
+						handler.sendEmptyMessage(0);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+
+				}
+			}
+		};
+		thread.start();
+
 
 	}
 
