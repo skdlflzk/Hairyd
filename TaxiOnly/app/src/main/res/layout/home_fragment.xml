@@ -1,0 +1,82 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00ffaaaa"
+   tools:context=".start"
+    android:paddingRight="10dp"
+    android:paddingLeft="10dp"
+    android:id ="@+id/rid">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TaxiGPS"
+        android:id="@+id/MainText"
+        android:textSize="23dp"
+        android:textColor = "#ddaa33"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="위도"
+        android:id="@+id/latitudeText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_below="@+id/MainText"
+        android:layout_alignParentStart="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="..."
+        android:id="@+id/latitudeTextview"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_alignBottom="@+id/latitudeText"
+        android:layout_toRightOf = "@+id/latitudeText"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="경도"
+        android:id="@+id/longitudeText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_below="@+id/latitudeText"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="..."
+        android:id="@+id/longitudeTextview"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_alignBottom="@+id/longitudeText"
+        android:layout_toEndOf="@+id/latitudeText" />
+
+
+    <Button
+        android:id="@+id/TakeButton"
+        android:textColor = "#eeeeee"
+        android:background="#222222"
+        android:layout_width="120dp"
+        android:layout_height="35dp"
+        android:textSize="13dp"
+        android:text="gps잡기"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="17dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:id="@+id/logText"
+        android:textSize="10dp"
+        android:textColor = "#555555"
+        android:layout_below="@+id/longitudeTextview"
+        />
+
+</RelativeLayout>

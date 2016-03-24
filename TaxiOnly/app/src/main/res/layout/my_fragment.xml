@@ -1,0 +1,56 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#00000000"
+   tools:context=".start"
+    android:paddingRight="10dp"
+    android:paddingLeft="10dp"
+    android:id ="@+id/rid">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="P'hairy.내 화면"
+        android:id="@+id/MainText"
+        android:textSize="23dp"
+        android:textColor = "#FFFFFF"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="103dp" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="내 ID"
+        android:id="@+id/IDText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_below="@+id/MainText"
+        android:layout_alignParentStart="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="내 모델"
+        android:id="@+id/PWText"
+        android:textSize="23dp"
+        android:textColor = "#555555"
+        android:layout_below="@+id/IDText"
+        android:layout_alignLeft="@+id/IDText"/>
+
+
+    <Button
+        android:id="@+id/TakeButton"
+        android:textColor = "#eeeeee"
+        android:background="#222222"
+        android:layout_width="120dp"
+        android:layout_height="35dp"
+        android:textSize="13dp"
+        android:text="촬영하기"
+        android:layout_alignParentBottom="true"
+        android:layout_alignEnd="@+id/MainText"
+        android:layout_marginBottom="74dp" />
+
+
+</RelativeLayout>
