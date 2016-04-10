@@ -18,6 +18,7 @@ public class HomeFragment extends Fragment {  //} implements View.OnClickListene
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         Log.e(TAG, "--HomeFragment--");
         View view = inflater.inflate(R.layout.home_fragment, container, false);
 

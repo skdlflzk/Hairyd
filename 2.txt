@@ -1,0 +1,70 @@
+오후 2:17 2016-04-06~오후 2:32 2016-04-06	15
+오후 3:22 2016-04-06~오후 3:53 2016-04-06	30	45
+오후 4:37 2016-04-06~오후 4:51 2016-04-06	14	49
+오후 5:28 2016-04-06~오후 5:52 2016-04-06	24	1:13
+오후 6:02 2016-04-06~오후 6:30 2016-04-06	28	1:41
+
+오후 7:39 2016-04-08~오후 8:30 2016-04-08	51	2:31
+오후 8:34 2016-04-08~오후 9:19 2016-04-08	45	3:16
+오후 9:42 2016-04-08~오후 10:11 2016-04-08	29	3:45
+오후 10:23 2016-04-08~오후 11:15 2016-04-08	52	4:37
+오후 11:20 2016-04-08~오후 11:52 2016-04-08	32	5:09
+오전 12:22 2016-04-09~오전 12:55 2016-04-09	33	5:42
+오전 12:53 2016-04-10~오전 1:40 2016-04-10	47	6:29
+오전 2:32 2016-04-10~오전 4:33 2016-04-10	2:01	8:30
+오후 12:09 2016-04-10~오후 12:28 2016-04-10	19	8:49
+오후 12:30 2016-04-10~오후 12:53 2016-04-10	23	9:12
+오후 12:57 2016-04-10~오후 1:21 2016-04-10	24	9:36
+
+
+
+
+http://blog.naver.com/msnayana/80109766471
+http://blog.naver.com/msnayana/80107534127 
+
+
+http://codens.info/594
+
+
+
+
+http://blog.naver.com/ekthatkxkd/220649367775
+depth 적용한 census 알고리즘
+
+https://siddhantahuja.wordpress.com/tag/sum-of-squared-differences/.
+
+
+
+https://www.typemoon.net/bbs/board.php?bo_table=qna&wr_id=87431&page=73
+depthmap의 한계
+
+http://vbflash.net/645
+contour 따오기
+http://tommyhsm.tistory.com/44
+따오기 2
+
+안드로이드 스튜디오 단축키 찾아 바꾸기 ctrl+R
+
+파일 읽어오기
+    File file = new File(mSdPath + "/TaxiOnly/gpsLog.txt");
+
+            FileReader fileReader = new FileReader(file);
+            BufferedReader reader = new BufferedReader(fileReader);
+
+            String line = null;
+            while ((line = reader.readLine()) != null) {
+                log += line;
+            }
+
+자바 파싱하는 더 좋은 방법
+
+String[] temp;
+
+ delimiter = "\\."; //보통은 delimiter = "-" 로 쓰이며 .은 특수한 경우로 \\를 붙인다.
+  temp = str.split(delimiter);	//  temp = str.split(delimiter,2); 를 사용하여 부문자열 개수를 조절할수 있다. 즉, 2개로 나눔.
+  for(int i =0; i < temp.length ; i++)
+    System.out.println(temp[i]);
+
+
+
+imread ->Mat형

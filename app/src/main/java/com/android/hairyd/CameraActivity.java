@@ -26,11 +26,14 @@ import android.widget.Switch;
 import android.widget.Toast;
 import android.widget.VideoView;
 
+import org.opencv.android.OpenCVLoader;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Calendar;
 
 public class CameraActivity extends Activity {
+
     //사진 찍기 가이드(1회), 촬영 후 저장, 서버로 전송(일단 파일로 아웃)
     Camera camera;
     SurfaceView surfaceView;
@@ -39,6 +42,7 @@ public class CameraActivity extends Activity {
 
     File fRoot;
     static int inUse = 0;
+
 
     String mRootPath;
     String FileName;
@@ -51,6 +55,14 @@ public class CameraActivity extends Activity {
     ImageView animView;
 
     boolean threadRun = false;
+
+
+    static int index = 0;
+    static int cIndex = 0;
+
+    int getIndex() {
+        return ++index;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,59 +113,59 @@ public class CameraActivity extends Activity {
 
     }
 
-    private SurfaceHolder.Callback surfaceListener = new SurfaceHolder.Callback() {
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            // TODO Auto-generated method stub
-            Log.i(TAG, "CameraActivity : surface Destroyed! 미리보기가 해제됩니다");
+private SurfaceHolder.Callback surfaceListener = new SurfaceHolder.Callback() {
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        // TODO Auto-generated method stub
+        Log.i(TAG, "CameraActivity : surface Destroyed! 미리보기가 해제됩니다");
 
-            if (mrec != null) {
-                mrec.release();
-                mrec = null;
+        if (mrec != null) {
+            mrec.release();
+            mrec = null;
+        }
+        if (camera != null) {
+            camera.stopPreview();
+            camera.release();
+            camera = null;
+        }
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        // TODO Auto-generated method stub
+        // 표시할 영역의 크기를 알았으므로 해당 크기로 Preview를 시작합니다.
+        Log.i(TAG, "CameraActivity : surface creating! 카메라 null이 아니면 미리보기 시작");
+
+        if (camera != null) {
+            try {
+                Camera.Parameters param = camera.getParameters();
+                camera.setParameters(param);
+                camera.setDisplayOrientation(90);
+
+                camera.setPreviewDisplay(holder);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.i(TAG, "CameraActivity : 카메라 미리보기 화면 에러");
             }
-            if (camera != null) {
-                camera.stopPreview();
-                camera.release();
-                camera = null;
-            }
+        } else {
+
+            Log.e(TAG, "CameraActivity : camera not available");
+            finish();
         }
 
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            // TODO Auto-generated method stub
-            // 표시할 영역의 크기를 알았으므로 해당 크기로 Preview를 시작합니다.
-            Log.i(TAG, "CameraActivity : surface creating! 카메라 null이 아니면 미리보기 시작");
+    }
 
-            if (camera != null) {
-                try {
-                    Camera.Parameters param = camera.getParameters();
-                    camera.setParameters(param);
-                    camera.setDisplayOrientation(90);
-
-                    camera.setPreviewDisplay(holder);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    Log.i(TAG, "CameraActivity : 카메라 미리보기 화면 에러");
-                }
-            } else {
-
-                Log.e(TAG, "CameraActivity : camera not available");
-                finish();
-            }
-
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+        // TODO Auto-generated method stub
+        if (camera != null) {
+            Camera.Parameters parameters = camera.getParameters();
+            parameters.setPreviewSize(width, height);
+            camera.startPreview();
+            Log.i(TAG, "CameraActivity : camera startPreview");
         }
-
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            // TODO Auto-generated method stub
-            if (camera != null) {
-                Camera.Parameters parameters = camera.getParameters();
-                parameters.setPreviewSize(width, height);
-                camera.startPreview();
-                Log.i(TAG, "CameraActivity : camera startPreview");
-            }
-        }
-    };
+    }
+};
 
 
     @Override
@@ -385,35 +397,35 @@ public class CameraActivity extends Activity {
 
         String time = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         long timeInmillisec = Long.parseLong(time);
-        final long interval = timeInmillisec*1000/20;
+        final long interval = timeInmillisec * 1000 / 20;
 //        long duration = timeInmillisec / 1000;
 //        long hours = duration / 3600;
 //        long minutes = (duration - hours * 3600) / 60;
 //        long seconds = duration - (hours * 3600 + minutes * 60);
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    int i = 1;
+                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();  //객체를 생성 해 주고
+                    mmr.setDataSource(mRootPath + FileName);  //파일 패스를 넣어주 다음에
+
+                    while (i < 21) {
+
+                        Bitmap bitmap = mmr.getFrameAtTime(interval * i, MediaMetadataRetriever.OPTION_CLOSEST);
                         try {
-                            int i=1;
-                            MediaMetadataRetriever mmr = new MediaMetadataRetriever();  //객체를 생성 해 주고
-                            mmr.setDataSource(mRootPath + FileName);  //파일 패스를 넣어주 다음에
-
-                            while (i < 21) {
-
-                                Bitmap bitmap = mmr.getFrameAtTime(interval*i,MediaMetadataRetriever.OPTION_CLOSEST);
-                                try {
-                                    FileOutputStream out = new FileOutputStream(mRootPath+"/capture/"+i+".jpg");
-                                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                                i ++;
-                            }
+                            FileOutputStream out = new FileOutputStream(mRootPath + "/capture/" + i + ".jpg");
+                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
                         } catch (Exception e) {
-                            Log.e(TAG, "CameraActivity : 캡쳐 에러");
+                            e.printStackTrace();
                         }
+                        i++;
                     }
-                }).start();
+                } catch (Exception e) {
+                    Log.e(TAG, "CameraActivity : 캡쳐 에러");
+                }
+            }
+        }).start();
 
         try {
 

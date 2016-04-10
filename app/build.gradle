@@ -1,23 +1,52 @@
 apply plugin: 'com.android.application'
 
-android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    android {
+        compileSdkVersion  22
+        buildToolsVersion  "22.0.1"
 
-    defaultConfig {
-        applicationId "com.android.hairyd"
-        minSdkVersion 19
-        targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        defaultConfig {
+            applicationId  "com.android.hairyd"
+            minSdkVersion    10
+            targetSdkVersion  22
+            versionCode  1
+            versionName "1.0"
+
+            ndk{
+                moduleName "NativeModule"
+//                ldLibs "log"
+            }
+
         }
+        // add begin
+        sourceSets.main {
+            jni.srcDirs = []
+            jniLibs.srcDir "src/main/jniLibs"
+        }
+
+        task ndkBuild(type: Exec, description: 'Compile JNI source via NDK') {
+            def ndkDir = android.ndkDirectory
+            commandLine "$ndkDir/ndk-build.cmd",
+                    'NDK_PROJECT_PATH=build/intermediates/ndk',
+                    'NDK_LIBS_OUT=src/main/jniLibs',
+                    'APP_BUILD_SCRIPT=src/main/jni/Android.mk',
+                    'NDK_APPLICATION_MK=src/main/jni/Application.mk'
+
+        }
+
+        tasks.withType(JavaCompile) {
+            compileTask -> compileTask.dependsOn ndkBuild
+        }
+        // add end
+
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile( ' proguard-android.txt ' ), ' proguard-rules.pro '
+            }
+        }
+
+
     }
-}
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
@@ -25,6 +54,5 @@ dependencies {
     compile files('libs/android-async-http-1.4.9.jar')
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile files('libs/twitter4j-core-4.0.4.jar')
-
-
+    compile project(':openCVLibrary2411')
 }
