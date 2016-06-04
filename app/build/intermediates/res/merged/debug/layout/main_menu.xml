@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    android:gravity="top"
+    tools:context="com.android.hairyd.MainMenu"
+    android:id ="@+id/rid">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="P'hairy."
+        android:id="@+id/mainText"
+        android:textSize="23dp"
+        android:textColor = "#eeeeee"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="204dp" />
+
+    <Button
+        android:id="@+id/CameraButton"
+        android:textColor = "#eeeeee"
+        android:background="#222222"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textSize="13dp"
+        android:text="3D 모델만들기"
+        android:onClick="onCameraButtonClicked"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true" />
+
+
+    <Button
+        android:id="@+id/ViewButton"
+        android:textColor = "#eeeeee"
+        android:background="#222222"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:textSize="13dp"
+        android:text="3D 모델 확인하기"
+        android:onClick="onViewButtonClicked"
+        android:layout_below="@+id/CameraButton"
+        android:layout_alignParentStart="true" />
+
+</RelativeLayout>

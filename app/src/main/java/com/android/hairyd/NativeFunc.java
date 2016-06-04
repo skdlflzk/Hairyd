@@ -8,5 +8,7 @@ public class NativeFunc {
 
     public native String getStringFromNative();
 
-    public native void FindFeatures(long addrGray, long addrRgba);
+    public native void FindFeatures(long addrGray, long addrRgba,int seek );
+
+    public native void getDisparity(long left, long right,int seek );
 }

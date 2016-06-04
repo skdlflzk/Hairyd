@@ -1,0 +1,14 @@
+[
+    {
+        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-hdpi-v4\\ic_launcher.png",
+        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\mipmap-hdpi\\ic_launcher.png"
+    },
+    {
+        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-hdpi-v4\\line.png",
+        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\mipmap-hdpi\\line.png"
+    },
+    {
+        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\mipmap-hdpi-v4\\line_vertical.png",
+        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\mipmap-hdpi\\line_vertical.png"
+    }
+]

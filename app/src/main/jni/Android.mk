@@ -4,10 +4,11 @@ include $(CLEAR_VARS)
 
 #OpenCV load
 
-OPENCV_LIB_TYPE:=STATIC
-OPENCV_CAMERA_MODULES:=on
-OPENCV_INSTALL_MODULES:=on
-include C:\Users\aa\Desktop\OpenCV-android-sdk\sdk\native\jni\OpenCV.mk
+#OPENCV_LIB_TYPE:=SHARED
+#OPENCV_CAMERA_MODULES:=on
+#OPENCV_INSTALL_MODULES:=on
+
+include C:\Users\aa\Desktop\hairydd\OpenCV-android-sdk\sdk\native\jni\OpenCV.mk
 
 LOCAL_SHARED_LIBRARIES += libdl
 

@@ -15,8 +15,9 @@ extern "C" {
  */
 JNIEXPORT jstring JNICALL Java_com_android_hairyd_NativeFunc_getStringFromNative
   (JNIEnv *, jobject);
-JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_FindFeatures(JNIEnv*, jobject, jlong addrGray, jlong addrRgba);
+JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_FindFeatures(JNIEnv*, jobject, jlong addrGray, jlong addrRgba,jint seek );
 
+JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_getDisparity(JNIEnv*, jobject, jlong left, jlong right , jint seek );
 
 
 #ifdef __cplusplus
