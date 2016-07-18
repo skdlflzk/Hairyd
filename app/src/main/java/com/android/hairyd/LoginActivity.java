@@ -37,7 +37,7 @@ public class LoginActivity extends Activity {
 
 	private Status status = null;
 	private static final String CONSUMER_KEY = "y8IChpIaeJpprBRwc7NHSA6ad";
-	private static final String CONSUMER_SECRET = "0FSXyFblozOHZJAfnbYUoZTmviOssqOkc366QPLsqXfijF98J";
+	private static final String CONSUMER_SECRET = "0FSXyFblozOHZJAfnbYUoZTmviOssqOkc366QPLsqXfijF98J";		//트위터 키일듯?
 
 
 	/** 생성. */

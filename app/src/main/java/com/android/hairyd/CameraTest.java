@@ -6,15 +6,24 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewFrame;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
+import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Environment;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SurfaceView;
@@ -24,9 +33,14 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.MultiProcessor;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+
 import java.io.File;
 
-public class CameraTest extends Activity implements CvCameraViewListener2{
+public class CameraTest extends AppCompatActivity implements CvCameraViewListener2{
 
     private CameraBridgeViewBase mOpenCvCameraView;
     private SeekBar seekbar;
@@ -56,6 +70,9 @@ public class CameraTest extends Activity implements CvCameraViewListener2{
 
     int seek = 0;
 
+    FaceDetector faceDetector;
+
+    TextView tView;
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this){
         @Override
         public void onManagerConnected(int status){
@@ -84,7 +101,7 @@ public class CameraTest extends Activity implements CvCameraViewListener2{
 
         seekbar = (SeekBar)findViewById(R.id.seekBar);
         seekbar.setMax(255);
-        seekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener(){
+        seekbar.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -105,11 +122,19 @@ public class CameraTest extends Activity implements CvCameraViewListener2{
         });
 
         text = (TextView)findViewById(R.id.mainText);
-
+        tView = (TextView)findViewById(R.id.textView);
+        faceDetector = new
+                FaceDetector.Builder(getApplicationContext()).setTrackingEnabled(false)
+                .build();
+        if(!faceDetector.isOperational()){
+            new AlertDialog.Builder(getApplicationContext()).setMessage("Could not set up the face detector!").show();
+            return;
+        }
 
 
 
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -175,55 +200,40 @@ public class CameraTest extends Activity implements CvCameraViewListener2{
             case  VIEW_MODE_RGBA:
                 mRgba = inputFrame.rgba();
                 mGray = inputFrame.gray();
+
                 NativeFunc nativeFunc = new NativeFunc();
-                nativeFunc.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr(), seek);
-
-                //Log.i("Android Tuorial", "OpenCV seek = " + seek);
-/*
-                if(seek == 0){
-
-                    left = new Mat(mRgba.height(), mRgba.width(), CvType.CV_8UC4);
-                    left = mRgba.clone();
-
-                    seek++;
-                }else if ( seek == 30 ) {
-
-                    right = new Mat(mRgba.height(), mRgba.width(), CvType.CV_8UC4);
-                    right = mRgba.clone();
-
-                    try {
-
-                        nativeFunc.getDisparity(left.getNativeObjAddr(), right.getNativeObjAddr(), seek);
-*/
-
-/*
-                        File path =
-                                Environment.getExternalStoragePublicDirectory(
-                                        Environment.DIRECTORY_PICTURES);
-                        String filename = "barry.png";
-                        File file = new File(path, filename);
-
-                        Boolean bool = null;
-                        filename = file.toString();
-                        bool = Highgui.imwrite(filename, mIntermediateMat);
-
-                        if (bool == true) {
-                            Log.d("phairy", "SUCCESS writing image to external storage");
-                        } else {
-                            Log.d("phairy", "Fail writing image to external storage");
-                        }
-
-                        Log.d("phairy", "SUCCESS writing image to external storage");
-
-                    } catch (Exception e) {
-                        Log.d("phairy", "Fail writing image to external storage");
-                    }
-
-                    seek ++;
-                }else{
-                    seek++;
-                }
-*/
+//                nativeFunc.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr(), seek);
+//
+//
+//
+//
+//                Bitmap bitmap =Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
+//                Utils.matToBitmap( mRgba ,bitmap);
+//
+//                Frame frame = new Frame.Builder().setBitmap(bitmap).build();
+//                SparseArray<Face> faces = faceDetector.detect(frame);
+//
+//                //Draw Rectangles on the Faces
+//
+//
+//
+//                for(int i=0; i<faces.size(); i++) {
+//                    Face thisFace = faces.valueAt(i);
+//                    float x1 = thisFace.getPosition().x;
+//                    float y1 = thisFace.getPosition().y;
+//                    float x2 = x1 + thisFace.getWidth();
+//                    float y2 = y1 + thisFace.getHeight();
+//
+//                    nativeFunc.drawPoint( mRgba.getNativeObjAddr(), x1, y1);
+//                    nativeFunc.drawPoint( mRgba.getNativeObjAddr(), x2,y2);
+//
+//
+//                }
+//
+//                if(faces.size()!=0) {
+//                    tView.setText("인식 수 = " + faces.size() + "/ y 각 -" + faces.valueAt(0).getEulerY() + ", z 각 -"+ faces.valueAt(0).getEulerZ());
+//
+//                }
                 break;
 
             case VIEW_MODE_THRESH:
@@ -260,38 +270,37 @@ public class CameraTest extends Activity implements CvCameraViewListener2{
 
     public void onRecordButtonClicked(View view){
         Button b =(Button) findViewById(R.id.recordButton);
-        if(b.getText().toString().equals("찍기")){
-            b.setText("또 찍기");
 
-            screen[0] = mRgba.clone();
 
-        }else if (b.getText().toString().equals("또 찍기")){
-            b.setText("마지막 찍기");
-
-            screen[1] = mRgba.clone();
-
-        }else if (b.getText().toString().equals("마지막 찍기")){
-            b.setText("잠시만 기다려주세요...");
-
-            screen[2] = mRgba.clone();
-
-            /*
-
-            스레드에서 하는게 낫지 않을까?
-
-             */
-
-            NativeFunc nativeFunc = new NativeFunc();
-            nativeFunc.getDisparity(screen[0].getNativeObjAddr(), screen[1].getNativeObjAddr(), seek);
-            nativeFunc.getDisparity(screen[1].getNativeObjAddr(), screen[2].getNativeObjAddr(), seek+1);
-            b.setText("완료!");
-
-        }else {
-
-        }
-// Fatal signal 11 (SIGSEGV) at 0x7840d000 (code=1), thread 13027 (.android.hairyd)
-        //stack corruption detected
-        //06-04 19:54:55.671 13582-13582/com.android.hairyd A/libc: Fatal signal 6 (SIGABRT) at 0x0000350e (code=-6), thread 13582 (.android.hairyd)
+//        if(b.getText().toString().equals("찍기")){
+//            b.setText("또 찍기");
+//
+//            screen[0] = mRgba.clone();
+//
+//        }else if (b.getText().toString().equals("또 찍기")){
+//            b.setText("마지막 찍기");
+//
+//            screen[1] = mRgba.clone();
+//
+//        }else if (b.getText().toString().equals("마지막 찍기")){
+//            b.setText("잠시만 기다려주세요...");
+//
+//            screen[2] = mRgba.clone();
+//
+//            /*
+//
+//            스레드에서 하는게 낫지 않을까?
+//
+//             */
+//
+//            NativeFunc nativeFunc = new NativeFunc();
+//            nativeFunc.getDisparity(screen[0].getNativeObjAddr(), screen[1].getNativeObjAddr(), 1);
+//            nativeFunc.getDisparity(screen[1].getNativeObjAddr(), screen[2].getNativeObjAddr(), 2);
+//            b.setText("완료!");
+//
+//        }else {
+//
+//        }
     }
 
 }

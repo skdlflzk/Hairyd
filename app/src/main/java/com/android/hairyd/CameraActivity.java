@@ -1,575 +1,383 @@
 package com.android.hairyd;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.PixelFormat;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.PointF;
+import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.hardware.Camera;
-import android.media.CamcorderProfile;
-import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
-import android.media.MediaRecorder;
-import android.net.Uri;
+
+
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.SparseArray;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.MediaController;
-import android.widget.Switch;
 import android.widget.Toast;
-import android.widget.VideoView;
 
-import org.opencv.android.OpenCVLoader;
+
+import com.google.android.gms.vision.Frame;
+import com.google.android.gms.vision.face.Face;
+import com.google.android.gms.vision.face.FaceDetector;
+import com.google.android.gms.vision.face.Landmark;
+
+import org.opencv.android.Utils;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.util.Calendar;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 public class CameraActivity extends Activity {
 
-    //사진 찍기 가이드(1회), 촬영 후 저장, 서버로 전송(일단 파일로 아웃)
-    Camera camera;
+    String TAG = Start.TAG;
+    private static final int RQS_LOADIMAGE = 1;
+    private Button btnLoad, btnDetFace;
+    private ImageView imgView;
+    private Bitmap myBitmap;
+
+
     SurfaceView surfaceView;
     SurfaceHolder surfaceHolder;
-    MediaRecorder mrec = new MediaRecorder();
 
-    File fRoot;
-    static int inUse = 0;
+    Camera.Size size;
 
-
-    String mRootPath;
-    String FileName;
-    String TAG = Start.TAG;
-    String VIDEOFOLDER = Start.VIDEOFOLDER;
-
-    Button recordButton;
-    Button sendButton;
-    VideoView videoView;
-    ImageView animView;
-
-    boolean threadRun = false;
-
-
-    static int index = 0;
-    static int cIndex = 0;
-
-    int getIndex() {
-        return ++index;
-    }
-
+    Camera mCamera = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.camera_activity);
+        setContentView(R.layout.cam_activity);
 
-        Log.e(TAG, "--CameraActivity--");
-
-        mRootPath = Environment.getExternalStorageDirectory().getAbsolutePath() + VIDEOFOLDER;
-        fRoot = new File(mRootPath);
-        if (fRoot.exists() == false) {
-
-            if (fRoot.mkdir() == false) {
-                Log.i(TAG, "CameraActivity : 저장 폴더 생성 실패");
-                return;
-            }
-        } else {
-            //Log.i(TAG, "CameraActivity : 저장 폴더가 존재함 정상");
-        }
-
-        camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
-
-        videoView = (VideoView) findViewById(R.id.videoView);
-        MediaController mediaController = new MediaController(this);
-        mediaController.setAnchorView(videoView);
-        videoView.setMediaController(mediaController);
-
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mp) {
-                videoView.start();
-            }
-        });
-
+        mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
+//
         surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
         surfaceView.setClickable(true);
         surfaceView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //녹화 시작
-                screenClicked();
+
             }
         });
+
         surfaceHolder = surfaceView.getHolder();
         surfaceHolder.addCallback(surfaceListener);
         surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-//        surfaceView.getHolder().setFormat(PixelFormat.TRANSLUCENT);
 
-    }
 
-private SurfaceHolder.Callback surfaceListener = new SurfaceHolder.Callback() {
-    @Override
-    public void surfaceDestroyed(SurfaceHolder holder) {
-        // TODO Auto-generated method stub
-        Log.i(TAG, "CameraActivity : surface Destroyed! 미리보기가 해제됩니다");
+        btnLoad = (Button)findViewById(R.id.btnLoad);
+        btnDetFace = (Button)findViewById(R.id.btnDetectFace);
+        imgView = (ImageView)findViewById(R.id.imgview);
 
-        if (mrec != null) {
-            mrec.release();
-            mrec = null;
-        }
-        if (camera != null) {
-            camera.stopPreview();
-            camera.release();
-            camera = null;
-        }
-    }
-
-    @Override
-    public void surfaceCreated(SurfaceHolder holder) {
-        // TODO Auto-generated method stub
-        // 표시할 영역의 크기를 알았으므로 해당 크기로 Preview를 시작합니다.
-        Log.i(TAG, "CameraActivity : surface creating! 카메라 null이 아니면 미리보기 시작");
-
-        if (camera != null) {
-            try {
-                Camera.Parameters param = camera.getParameters();
-                camera.setParameters(param);
-                camera.setDisplayOrientation(90);
-
-                camera.setPreviewDisplay(holder);
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.i(TAG, "CameraActivity : 카메라 미리보기 화면 에러");
+        btnLoad.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                startActivityForResult(intent, RQS_LOADIMAGE);
             }
-        } else {
+        });
 
-            Log.e(TAG, "CameraActivity : camera not available");
-            finish();
-        }
+        btnDetFace.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
 
+                if(myBitmap != null){
+                    int size = detectFace();
+                    Toast.makeText(getApplicationContext(),"Done ,"+size, Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(),"data == null",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+
+        mCamera.setPreviewCallback(new Camera.PreviewCallback() {
+            @Override
+            public void onPreviewFrame(byte[] bytes, Camera camera) {
+
+//                Camera.Parameters parameters = camera.getParameters();
+//                List<Camera.Size> sizeList = parameters.getSupportedPreviewSizes();
+
+                Integer width=0;
+                Integer height=0;
+
+                width = size.width;//parameters.getPreviewSize().width;
+                height = size.height;//parameters.getPreviewSize().height;
+                int[] mIntArray = new int[width * height];
+
+                // Decode Yuv data to integer array
+                decodeYUV420SP(mIntArray, bytes, width, height);
+
+                //Initialize the bitmap, with the replaced color
+                myBitmap = Bitmap.createBitmap(mIntArray, width, height, Bitmap.Config.RGB_565);
+
+                Matrix rotateMatrix = new Matrix();
+                rotateMatrix.setScale(-1, 1);
+
+                rotateMatrix.postRotate(90);
+
+                myBitmap = Bitmap.createBitmap(myBitmap, 0, 0, myBitmap.getWidth(), myBitmap.getHeight(), rotateMatrix, false);
+
+                int facecount = detectFace();
+
+                Log.i(TAG, "CameraActivity: Detecting... ," + facecount );
+
+            }
+        });
     }
 
-    @Override
-    public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-        // TODO Auto-generated method stub
-        if (camera != null) {
-            Camera.Parameters parameters = camera.getParameters();
-            parameters.setPreviewSize(width, height);
-            camera.startPreview();
-            Log.i(TAG, "CameraActivity : camera startPreview");
-        }
-    }
-};
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_start, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     @Override
     protected void onPause() {
-        if (camera != null) {
-            camera.stopPreview();
-            camera.release();
-            camera = null;
-        }
+        if (mCamera != null) {
 
-        if (mrec != null) {
-            mrec.release();
-            mrec = null;
+                mCamera.stopPreview();
+            mCamera.release();
+            mCamera = null;
         }
-
         super.onPause();
-    }
-
-
-    @Override
-    protected void onRestart() {
-        super.onRestart();
-        Log.i(TAG, "CameraActivity : restart...");
-
-//        Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
-//        startActivity(intent);
-//        finish();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        inUse = 0;
-        if (camera != null) {
-            camera.stopPreview();
-            camera.setPreviewCallback(null);
-
-            camera.release();
-            camera = null;
-        }
-
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        inUse = 0;
-        Log.e(TAG, "CameraActivity : destroy! should file deleted?");
-
-        finish();
-
-    }
-
-    public void screenClicked() {
-
-        if (inUse == 0) {
-            inUse = 1;
-            Log.i(TAG, "CameraActivity : clicked! ready to record...");
-
-            try {
-
-                if (mrec == null) mrec = new MediaRecorder();
-
-                camera.unlock();
-
-                mrec.setCamera(camera);
-                mrec.setPreviewDisplay(surfaceHolder.getSurface());
-                mrec.setVideoSource(MediaRecorder.VideoSource.CAMERA);
-                mrec.setAudioSource(MediaRecorder.AudioSource.MIC);//오디오는 필요없음
-                mrec.setOrientationHint(270);
-                mrec.setProfile(CamcorderProfile.get(CamcorderProfile.QUALITY_1080P));  //가장 높은 화질을 고르게 선택
-
-                Calendar calendar = Calendar.getInstance();
-                FileName = String.format("/SH%02d%02d%02d%02d%02d%02d.mp4", calendar.get(Calendar.YEAR) % 100,
-                        calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH),
-                        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE),
-                        calendar.get(Calendar.SECOND));
-                mrec.setOutputFile(mRootPath + FileName);
-                mrec.setMaxDuration(40000);
-
-                mrec.prepare();
-
-                Log.d(TAG, "CameraActivity : record start!");
-
-                mrec.start();
-
-
-                //애니메이션 시작
-
-                animView = (ImageView) findViewById(R.id.animView);
-                animView.setVisibility(View.VISIBLE);
-                animView.bringToFront();
-                threadRun = true;
-                animView.setImageResource(R.drawable.face);
-
-//                new Thread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        try {
-//                            while (threadRun == true) {
-//                                animView.setImageResource(R.drawable.face);
-//                                Thread.sleep(1000);
-//                                animView.setImageResource(R.drawable.facel1);
-//                                Thread.sleep(1000);
-//                                animView.setImageResource(R.drawable.facel2);
-//                                Thread.sleep(1000);
-//                            }
-//                        } catch (Exception e) {
-//                            Log.e(TAG, "CameraActivity : Animation 에러");
-//                        }
-//                    }
-//                }).start();
-
-            } catch (Exception e) {
-                Log.e(TAG, "CameraActivity : record fail");
-                mrec.stop();
-                mrec.reset();//없으면 mediarecorder went away with unhandled
-                mrec.release();
-
-                mrec = null;
-                camera.lock();
-                camera = null;
-            }
-
-        } else if (inUse == 1) {
-            inUse = 2;
-            threadRun = false;
-            try {
-
-                //애니메이션 중단
-                ImageView animView = (ImageView) findViewById(R.id.animView);
-                animView.setVisibility(View.GONE);
-
-
-                Log.i(TAG, "CameraActivity : clicked! record finishing...");
-                mrec.stop();
-                mrec.reset();
-                mrec.release();
-
-                mrec = null;
-
-                camera.lock();
-                camera.release();
-                camera = null;
-
-            } catch (Exception e) {
-                Log.e(TAG, "CameraActivity : fail to finish record...");
-
-            } finally {
-                Toast.makeText(getApplicationContext(), "../DCIM/hairyd/에 저장되었습니다", Toast.LENGTH_LONG).show();
-            }
-
-
-            //surfaceView.setVisibility(View.INVISIBLE);
-
-            recordButton = (Button) findViewById(R.id.recordButton);
-            sendButton = (Button) findViewById(R.id.sendButton);
-
-
-            videoView = (VideoView) findViewById(R.id.videoView);
-            MediaController mediaController = new MediaController(this);
-            mediaController.setAnchorView(videoView);
-
-
-            videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    videoView.start();
-                }
-            });
-
-            try {
-                videoView.setVisibility(View.VISIBLE);
-                videoView.setEnabled(true);
-
-                recordButton.setVisibility(View.VISIBLE);
-                recordButton.setEnabled(true);
-                sendButton.setVisibility(View.VISIBLE);
-                sendButton.setEnabled(true);
-                surfaceView.setVisibility(View.INVISIBLE);
-                surfaceView.setBackgroundColor(Color.parseColor("#00000000"));
-
-                playVideo();
-
-            } catch (Exception e) {
-                inUse = 0;
-            }
-        } else if (inUse == 2) {
-
-
-            try {
-                if (videoView.isPlaying() == false) {
-                    playVideo();
-                } else {
-                    Log.i(TAG, "CameraActivity : 비디오가 재생 중입니다");
-                    videoView.resume();
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "CameraActivity : 영상 재생 실패...");
-            }
-        }
-    }
-
-    public void playVideo() {
-        Log.i(TAG, "CameraActivity : 저장된 영상을 재생, 추출합니다");
-        MediaMetadataRetriever mmr = new MediaMetadataRetriever();  //객체를 생성 해 주고
-        mmr.setDataSource(mRootPath + FileName);  //파일 패스를 넣어주 다음에
-
-
-        String time = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        long timeInmillisec = Long.parseLong(time);
-        final long interval = timeInmillisec * 1000 / 20;
-//        long duration = timeInmillisec / 1000;
-//        long hours = duration / 3600;
-//        long minutes = (duration - hours * 3600) / 60;
-//        long seconds = duration - (hours * 3600 + minutes * 60);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    int i = 1;
-                    MediaMetadataRetriever mmr = new MediaMetadataRetriever();  //객체를 생성 해 주고
-                    mmr.setDataSource(mRootPath + FileName);  //파일 패스를 넣어주 다음에
-
-                    while (i < 21) {
-
-                        Bitmap bitmap = mmr.getFrameAtTime(interval * i, MediaMetadataRetriever.OPTION_CLOSEST);
-                        try {
-                            FileOutputStream out = new FileOutputStream(mRootPath + "/capture/" + i + ".jpg");
-                            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        i++;
-                    }
-                } catch (Exception e) {
-                    Log.e(TAG, "CameraActivity : 캡쳐 에러");
-                }
-            }
-        }).start();
-
-        try {
-
-            Uri uri = Uri.parse(mRootPath + FileName);
-            if (uri != null) {
-
-                videoView.setVideoURI(uri);
-                videoView.requestFocus();
-                videoView.start();
-            } else {
-                Log.e(TAG, "CameraActivity : 비디오 생성 중");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "CameraActivity : 비디오 재생 에러");
-        }
-    }
-
-
-    public void onRecordButtonClicked(View v) {
-        Log.e(TAG, "CameraActivity : 영상을 다시 촬영합니다");
-
-        File fileName = new File(mRootPath + FileName);
-        if (fileName.delete()) {
-            Log.e(TAG, "CameraActivity : 영상이 삭제됨");
-        } else {
-            Log.e(TAG, "CameraActivity : 영상 삭제 실패!!");
-        }
-
-
-        Intent intent = new Intent(getApplicationContext(), CameraActivity.class);
-        startActivity(intent);
-        finish();
-
-        inUse = 0;
-/*
-
-        if (camera != null) {
-            camera.stopPreview();
-            camera.release();
-            camera = null;
-        }
-        if (mrec != null) {
-            mrec.release();
-            mrec = null;
-        }
-
-        surfaceView.setVisibility(View.VISIBLE);
-        surfaceView.setEnabled(true);
-
-        videoView.pause();
-        videoView.setVisibility(View.GONE);
-        videoView = null;
-
-
-
-        recordButton.setVisibility(View.GONE);
-        sendButton.setVisibility(View.GONE);
-
-        if (camera == null) {
-            try {
-                camera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
-                Camera.Parameters param = camera.getParameters();
-                camera.setParameters(param);
-                camera.setDisplayOrientation(90);
-                camera.setPreviewDisplay(surfaceHolder);
-                Log.d(TAG, "CameraActivity : camara ReOperating...");
-                if(camera==null) Log.e(TAG, "CameraActivity : cam null");
-
-                camera.startPreview();
-
-            } catch (Exception e) {
-                Log.i(TAG, "CameraActivity : 카메라 구동 에러");
-            }
-        }
-
-*/
-    }
-
-
-    public void onSendButtonClicked(View v) {
-        sendVideo();
-    }
-
-    public void sendVideo() {
-        Log.i(TAG, "CameraActivity : 보내기 시작");
-        inUse = 0;
-
-        try {
-            videoView.pause();
-            videoView = null;
-
-            Intent mIntent = new Intent(Intent.ACTION_SEND);
-            //mIntent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
-            mIntent.setType("video/*");
-            mIntent.putExtra(Intent.EXTRA_EMAIL, "skdlflzk@naver.com");
-            File f = new File(mRootPath + FileName);
-            if (!f.exists()) {
-                Toast.makeText(getApplicationContext(), "영상 파일이 없습니다", Toast.LENGTH_LONG).show();
-            }
-
-            Uri fileUri = Uri.fromFile(f);
-            mIntent.putExtra(Intent.EXTRA_STREAM, fileUri);
-            startActivityForResult(mIntent, 1001);
-
-        } catch (Exception e) {
-            Log.e(TAG, "CameraActivity : 전송 에러");
-        }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == RQS_LOADIMAGE
+                && resultCode == RESULT_OK){
+
+            if(myBitmap != null){
+                myBitmap.recycle();
+            }
+
+            try {
+                InputStream inputStream = getContentResolver().openInputStream(data.getData());
+                myBitmap = BitmapFactory.decodeStream(inputStream);
+                inputStream.close();
+                imgView.setImageBitmap(myBitmap);
+
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
         super.onActivityResult(requestCode, resultCode, data);
-        try {
-            switch (data.getIntExtra("ErrCode", 10)) {
-                case 10:
-                    Log.e(TAG, "CameraActivity : 디폴트");
-                    Toast.makeText(getApplicationContext(), "디폴트 값?", Toast.LENGTH_LONG).show();
-                    break;
-                case 1:
-                    Log.e(TAG, "CameraActivity : 이상한 값");
-                    Toast.makeText(getApplicationContext(), "전송이 안됨?", Toast.LENGTH_LONG).show();
-                    break;
-                case 0:
-                    Log.e(TAG, "CameraActivity : 이상한 값");
-                    Toast.makeText(getApplicationContext(), "전송이 안됨?", Toast.LENGTH_LONG).show();
-                    break;
-                default:
-                    Log.e(TAG, "CameraActivity : 이상한 값");
-                    Toast.makeText(getApplicationContext(), "이상한 값?", Toast.LENGTH_LONG).show();
-                    break;
+    }
+
+    /*
+    reference:
+    https://search-codelabs.appspot.com/codelabs/face-detection
+     */
+    private int detectFace(){
+
+        //Create a Paint object for drawing with
+        Paint myRectPaint = new Paint();
+        myRectPaint.setStrokeWidth(5);
+        myRectPaint.setColor(Color.RED);
+        myRectPaint.setStyle(Paint.Style.STROKE);
+
+        //Create a Canvas object for drawing on
+        Bitmap tempBitmap = Bitmap.createBitmap(myBitmap.getWidth(), myBitmap.getHeight(), Bitmap.Config.RGB_565);
+
+        Log.i("Phairy", "detectFace_ loaded successfully. 크기 "+myBitmap.getWidth() + ", "+myBitmap.getHeight());
+
+        Canvas tempCanvas = new Canvas(tempBitmap);
+        tempCanvas.drawBitmap(myBitmap, 0, 0, null);
+
+        //Detect the Faces
+        FaceDetector faceDetector = new FaceDetector.Builder(getApplicationContext()) .setLandmarkType(FaceDetector.ALL_LANDMARKS) .build();
+
+        //!!!
+        //Cannot resolve method setTrackingEnabled(boolean)
+        //skip for now
+        //faceDetector.setTrackingEnabled(false);
+
+        Frame frame = new Frame.Builder().setBitmap(myBitmap).build();
+        SparseArray<Face> faces = faceDetector.detect(frame);
+
+        Paint landmarksPaint = new Paint();
+        landmarksPaint.setStrokeWidth(10);
+        landmarksPaint.setColor(Color.RED);
+        landmarksPaint.setStyle(Paint.Style.STROKE);
+
+        //Draw Rectangles on the Faces
+        for(int i=0; i<faces.size(); i++) {
+            Face thisFace = faces.valueAt(i);
+            float x1 = thisFace.getPosition().x;
+            float y1 = thisFace.getPosition().y;
+            float x2 = x1 + thisFace.getWidth();
+            float y2 = y1 + thisFace.getHeight();
+            tempCanvas.drawRoundRect(new RectF(x1, y1, x2, y2), 2, 2, myRectPaint);
+
+            List<Landmark> landmarks = thisFace.getLandmarks();
+            for(int l=0; l<landmarks.size(); l++){
+                PointF pos = landmarks.get(l).getPosition();
+                tempCanvas.drawPoint(pos.x, pos.y, landmarksPaint);
+            }
+
+            Log.i("Phairy", "y각 " + thisFace.getEulerY() + "도, z각 " + thisFace.getEulerZ() + "도 너비 = " + thisFace.getWidth() + ", 높이 = " + thisFace.getHeight()+", 특징점 개수 "+landmarks.size() );
+        }
+        imgView.setImageDrawable(new BitmapDrawable(getResources(),tempBitmap));
+
+        return faces.size();
+    }
+
+
+    static public void decodeYUV420SP(int[] rgba, byte[] yuv420sp, int width,
+                                      int height) {
+        final int frameSize = width * height;
+
+        for (int j = 0, yp = 0; j < height; j++) {
+            int uvp = frameSize + (j >> 1) * width, u = 0, v = 0;
+            for (int i = 0; i < width; i++, yp++) {
+                int y = (0xff & ((int) yuv420sp[yp])) - 16;
+                if (y < 0)
+                    y = 0;
+                if ((i & 1) == 0) {
+                    v = (0xff & yuv420sp[uvp++]) - 128;
+                    u = (0xff & yuv420sp[uvp++]) - 128;
+                }
+
+                int y1192 = 1192 * y;
+                int r = (y1192 + 1634 * v);
+                int g = (y1192 - 833 * v - 400 * u);
+                int b = (y1192 + 2066 * u);
+
+                if (r < 0) r = 0; else if (r > 262143) r = 262143;
+                if (g < 0) g = 0; else if (g > 262143) g = 262143;
+                if (b < 0) b = 0; else if (b > 262143) b = 262143;
+
+                // rgb[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) &
+                // 0xff00) | ((b >> 10) & 0xff);
+                // rgba, divide 2^10 ( >> 10)
+
+//                rgba[yp] = ((r << 14) & 0xff000000) | ((g << 6) & 0xff0000)
+//                        | ((b >> 2) | 0xff00);
+                rgba[yp] = 0xff000000 | ((r << 6) & 0xff0000) | ((g >> 2) &
+                        0xff00) | ((b >> 10) & 0xff);
 
             }
-            Log.e(TAG, "CameraActivity :  스위치?");
-        } catch (Exception e) {
-            File fileName = new File(mRootPath + FileName);
-            if (fileName.delete()) {
-                Log.e(TAG, "CameraActivity : ActivityResult...영상이 삭제됨");
-            } else {
-                Log.e(TAG, "CameraActivity : 영상 삭제 실패!!");
-            }
-            Intent intent = getIntent();
-            startActivity(intent);
-            finish();
         }
     }
-}
+    static public void encodeYUV420SP(byte[] yuv420sp, int[] rgba,
+                                               int width, int height) {
+        final int frameSize = width * height;
 
+        int[] U, V;
+        U = new int[frameSize];
+        V = new int[frameSize];
+
+        final int uvwidth = width / 2;
+
+        int r, g, b, y, u, v;
+        for (int j = 0; j < height; j++) {
+            int index = width * j;
+            for (int i = 0; i < width; i++) {
+                r = (rgba[index] & 0xff000000) >> 24;
+                g = (rgba[index] & 0xff0000) >> 16;
+                b = (rgba[index] & 0xff00) >> 8;
+
+                // rgb to yuv
+                y = (66 * r + 129 * g + 25 * b + 128) >> 8 + 16;
+                u = (-38 * r - 74 * g + 112 * b + 128) >> 8 + 128;
+                v = (112 * r - 94 * g - 18 * b + 128) >> 8 + 128;
+
+                // clip y
+                yuv420sp[index++] = (byte) ((y < 0) ? 0 : ((y > 255) ? 255 : y));
+                U[index] = u;
+                V[index++] = v;
+            }
+        }
+    }
+    private SurfaceHolder.Callback surfaceListener = new SurfaceHolder.Callback() {
+        @Override
+        public void surfaceDestroyed(SurfaceHolder holder) {
+            // TODO Auto-generated method stub
+
+            if (mCamera != null) {
+                mCamera.stopPreview();
+                mCamera.release();
+                mCamera = null;
+            }
+        }
+
+        @Override
+        public void surfaceCreated(SurfaceHolder holder) {
+            // TODO Auto-generated method stub
+            // 표시할 영역의 크기를 알았으므로 해당 크기로 Preview를 시작합니다.
+            Log.i(TAG, "mCameraActivity : surface creating! 카메라 null이 아니면 미리보기 시작");
+
+            if (mCamera != null) {
+                try {
+
+                    Camera.Parameters param = mCamera.getParameters();
+                    List<Camera.Size> sizeList = param.getSupportedPreviewSizes();
+                    int min=1000;
+                    Integer width=0;
+                    Integer height=0;
+                    for (int i =0; i < sizeList.size() ; i++) {
+                        Camera.Size tempSize = sizeList.get(i);
+
+
+                        if(tempSize.width < min) {
+                            size = tempSize;
+                            width = size.width;//parameters.getPreviewSize().width;
+                            height = size.height;//parameters.getPreviewSize().height;
+                            min = size.width;
+
+
+                        }
+                    }
+
+                    param.setPreviewFrameRate(30);
+                    param.setPreviewSize(size.width, size.height);
+
+                    Log.i(TAG, "CameraActivity: minimum  Camera Size = " + min);
+
+                    param.setPreviewFrameRate(30);
+                    param.setPreviewSize(width, height);
+
+                    mCamera.setParameters(param);
+                    mCamera.setDisplayOrientation(90);
+                    mCamera.setPreviewDisplay(holder);
+
+                } catch (Exception e) {
+
+                    e.printStackTrace();
+                    Log.i(TAG, "mCameraActivity : 카메라 미리보기 화면 에러");
+
+                }
+            } else {
+
+                Log.e(TAG, "mCameraActivity : mCamera not available");
+            }
+
+        }
+
+        @Override
+        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
+            // TODO Auto-generated method stub
+            if (mCamera != null) {
+                Camera.Parameters parameters = mCamera.getParameters();
+                parameters.setPreviewSize(width, height);
+                mCamera.startPreview();
+                Log.i(TAG, "mCameraActivity : mCamera startPreview");
+            }
+        }
+    };
+
+
+
+}

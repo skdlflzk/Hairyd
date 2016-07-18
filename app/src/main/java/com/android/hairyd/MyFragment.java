@@ -23,7 +23,7 @@ public class MyFragment extends Fragment{
         TakeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent m_intent = new Intent(getActivity().getApplicationContext(),CameraTest.class);
+                Intent m_intent = new Intent(getActivity().getApplicationContext(),CameraActivity.class);
                 startActivity(m_intent);
                 //    getActivity().finish();
             }
