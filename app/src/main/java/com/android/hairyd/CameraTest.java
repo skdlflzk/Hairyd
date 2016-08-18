@@ -272,6 +272,9 @@ public class CameraTest extends AppCompatActivity implements CvCameraViewListene
         Button b =(Button) findViewById(R.id.recordButton);
 
 
+
+
+
 //        if(b.getText().toString().equals("찍기")){
 //            b.setText("또 찍기");
 //

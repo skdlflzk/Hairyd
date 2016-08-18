@@ -15,6 +15,10 @@
 #include <vector>
 #include <time.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+#define SIGN(a, b) ( (b) < 0 ? -fabs(a) : fabs(a) )
 
 using namespace std;
 using namespace cv;
@@ -162,10 +166,74 @@ JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_drawPoint(JNIEnv *, jo
 
 
     circle(mRgb, cvPoint((int)x, (int)y), 2, cvScalar(255,0,0));
-
+/*
+ *
+ */
 
 }
 
+
+JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_getPCA(JNIEnv *, jobject,
+                                                                       jlong left,
+                                                                       jlong right, jint seek) {
+
+    __android_log_print(ANDROID_LOG_WARN, "NDK",
+                        "starting getPCA()...");
+//파일 입력
+    /*
+    File file;
+    String filePath = App::GetInstance()->GetAppRootPath() + L"data/muct76-opencv.csv";   //assets?muct76-opencv
+
+    result r = file.Construct(filePath, "r");
+
+    FileAttributes att;
+    r = File::GetAttributes(filePath, att);
+
+    long long size = att.GetFileSize();
+
+    ByteBuffer buf;
+    r = buf.Construct(size + 1);
+
+    r = file.Read(buf);
+
+    String str;
+    str += (char*)buf.GetPointer();
+
+//  파싱
+
+    String token = "\n";
+    String token2 = ",";
+
+    StringTokenizer strTok(str,token);
+    String tokStr;
+
+    while(strTok.HasMoreTokens()){
+        strTok.GetNextToken(tokStr);
+
+        StringTokenizer strTok2(tokStr,token2);
+
+        int itemNum = 0;
+        String stationInfrom;
+        while(strTok2.HasMoreTokens()){
+            itemNum++;
+            strTok2.GetNextToken(stationInfrom);
+
+            if(itemNum == 1){
+                busNameList->Add(stationInfrom);
+            }else if(itemNum == 2){
+                busNumList->Add(stationInfrom);
+                itemNum=0;
+            }
+        }
+    }
+
+
+    flaot ** data = matrix(n, m); //n개 세트의 m/2개 좌표
+    __android_log_print(ANDROID_LOG_WARN, "NDK",
+                        "ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡreturning...");
+                        */
+
+}
 
 
 }

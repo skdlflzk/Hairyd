@@ -19,6 +19,8 @@ JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_FindFeatures(JNIEnv*, 
 
 JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_getDisparity(JNIEnv*, jobject, jlong left, jlong right , jint seek );
 
+JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_getPCA(JNIEnv*, jobject, jlong left, jlong right , jint seek );
+
 
 #ifdef __cplusplus
 }

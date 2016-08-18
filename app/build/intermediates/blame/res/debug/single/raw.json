@@ -12,10 +12,6 @@
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\exploded-aar\\com.google.android.gms\\play-services-analytics\\7.8.0\\res\\raw\\gtm_analytics"
     },
     {
-        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\raw\\image01.jpg",
-        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\raw\\image01.jpg"
-    },
-    {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\raw\\lbpcascade_frontalface.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\raw\\lbpcascade_frontalface.xml"
     }

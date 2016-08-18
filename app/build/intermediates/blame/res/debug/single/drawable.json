@@ -20,14 +20,6 @@
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\exploded-aar\\com.android.support\\mediarouter-v7\\22.2.0\\res\\drawable\\mr_ic_media_route_mono_dark.xml"
     },
     {
-        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\background.jpg",
-        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\drawable\\background.jpg"
-    },
-    {
-        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\login.png",
-        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\drawable\\login.png"
-    },
-    {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\mr_ic_pause_dark.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\exploded-aar\\com.android.support\\mediarouter-v7\\22.2.0\\res\\drawable\\mr_ic_pause_dark.xml"
     },
@@ -88,10 +80,6 @@
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\exploded-aar\\com.google.android.gms\\play-services-cast\\7.8.0\\res\\drawable\\cast_ic_notification_connecting.xml"
     },
     {
-        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\facel2.png",
-        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\drawable\\facel2.png"
-    },
-    {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\abc_list_selector_holo_light.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.0\\res\\drawable\\abc_list_selector_holo_light.xml"
     },
@@ -102,10 +90,6 @@
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\mr_ic_media_route_connecting_mono_dark.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\exploded-aar\\com.android.support\\mediarouter-v7\\22.2.0\\res\\drawable\\mr_ic_media_route_connecting_mono_dark.xml"
-    },
-    {
-        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\face.png",
-        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\drawable\\face.png"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\abc_item_background_holo_light.xml",
@@ -124,20 +108,12 @@
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\exploded-aar\\com.android.support\\appcompat-v7\\22.2.0\\res\\drawable\\abc_btn_check_material.xml"
     },
     {
-        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\facel1.png",
-        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\drawable\\facel1.png"
-    },
-    {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\common_signin_btn_icon_light.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\exploded-aar\\com.google.android.gms\\play-services-base\\7.8.0\\res\\drawable\\common_signin_btn_icon_light.xml"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\deer.jpg",
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\drawable\\deer.jpg"
-    },
-    {
-        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\enroll.png",
-        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\drawable\\enroll.png"
     },
     {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\drawable\\abc_dialog_material_background_light.xml",
