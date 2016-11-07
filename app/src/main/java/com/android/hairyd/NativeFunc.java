@@ -14,4 +14,6 @@ public class NativeFunc {
 
     public native void drawPoint(long addrRgba, float x,float y);
 
+    public native double[] AAMfitting(long addrGray, long addrRgba,double[] datum, double[] average );
+
 }

@@ -13,10 +13,12 @@ import android.graphics.Point;
 import android.graphics.PointF;
 import android.graphics.RectF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 
 
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.SurfaceHolder;
@@ -31,15 +33,17 @@ import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
 import com.google.android.gms.vision.face.Landmark;
-import com.mkobos.pca_transform.PCA;
 
-import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -53,6 +57,8 @@ public class CameraActivity extends Activity {
     private ImageView imgView;
     private Bitmap myBitmap;
 
+    Integer width;
+    Integer height;
 
     SurfaceView surfaceView;
     SurfaceHolder surfaceHolder;
@@ -60,11 +66,14 @@ public class CameraActivity extends Activity {
     Camera.Size size;           //MUCT는 세로 480x640 이미지임.
 
     Camera mCamera = null;
+    double[] alignDatum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.cam_activity);
+
+        makeFile();
 
         mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
 //
@@ -119,8 +128,6 @@ public class CameraActivity extends Activity {
 //                Camera.Parameters parameters = camera.getParameters();
 //                List<Camera.Size> sizeList = parameters.getSupportedPreviewSizes();
 
-                Integer width = 0;
-                Integer height = 0;
 
                 width = size.width;//parameters.getPreviewSize().width;
                 height = size.height;//parameters.getPreviewSize().height;
@@ -142,6 +149,7 @@ public class CameraActivity extends Activity {
                 int facecount = detectFace();
 
                 Log.i(TAG, "CameraActivity: Detecting... ," + facecount);
+
 
             }
         });
@@ -357,9 +365,8 @@ public class CameraActivity extends Activity {
                             width = size.width;//parameters.getPreviewSize().width;
                             height = size.height;//parameters.getPreviewSize().height;
                             min = size.width;
-
-
                         }
+
                     }
 
                     param.setPreviewFrameRate(30);
@@ -400,7 +407,7 @@ public class CameraActivity extends Activity {
     };
 
 
-    public void pcaAnalize() {
+    public void pcaAnalize() { //(RGBA input){
 
         String data = "name,tag,x00,y00,x01,y01,x02,y02,x03,y03,x04,y04,x05,y05,x06,y06,x07,y07,x08,y08,x09,y09,x10,y10,x11,y11,x12,y12,x13,y13,x14,y14,x15,y15,x16,y16,x17,y17,x18,y18,x19,y19,x20,y20,x21,y21,x22,y22,x23,y23,x24,y24,x25,y25,x26,y26,x27,y27,x28,y28,x29,y29,x30,y30,x31,y31,x32,y32,x33,y33,x34,y34,x35,y35,x36,y36,x37,y37,x38,y38,x39,y39,x40,y40,x41,y41,x42,y42,x43,y43,x44,y44,x45,y45,x46,y46,x47,y47,x48,y48,x49,y49,x50,y50,x51,y51,x52,y52,x53,y53,x54,y54,x55,y55,x56,y56,x57,y57,x58,y58,x59,y59,x60,y60,x61,y61,x62,y62,x63,y63,x64,y64,x65,y65,x66,y66,x67,y67,x68,y68,x69,y69,x70,y70,x71,y71,x72,y72,x73,y73,x74,y74,x75,y75\n" +
                 "i000qa-fn,0000,201,348,201,381,202,408,209,435,224,461,241,483,264,498,292,501,319,493,338,470,353,448,363,423,367,395,366,371,357,344,355,316,340,311,325,318,309,328,327,324,342,317,217,328,231,323,250,327,269,333,251,334,233,331,229,345,240,337,262,349,242,352,241,344,346,337,330,330,318,341,334,344,330,336,280,344,278,381,264,399,273,406,293,409,316,399,321,392,304,376,296,342,279,402,310,399,251,431,268,427,284,425,293,425,302,423,316,425,329,426,320,442,309,451,295,454,278,452,263,442,277,440,293,442,313,437,313,429,293,432,277,431,293,436,295,395,234.5,341,251,343,252,350.5,235.5,348.5,338,333.5,324,335.5,326,342.5,340,340.5\n" +
@@ -435,7 +442,8 @@ public class CameraActivity extends Activity {
         entertoken.nextToken();
         StringTokenizer tabtoken;
 
-        double[][] A = new double[dataSize][76 * 2];
+        double[][] A = new double[dataSize][76 * 2];// dataSize < 76*2
+
 
         for (int i = 0; i < dataSize; i++) {
 
@@ -444,75 +452,782 @@ public class CameraActivity extends Activity {
             tabtoken.nextToken();//tag
 
             for (int j = 0; j < 76; j++) {
+//                    double one = Double.parseDouble(tabtoken.nextToken());
+//                    double two = Double.parseDouble(tabtoken.nextToken());
+//                    Log.e(TAG, "CameraActivity:  "+one + " " + two );
 
                 A[i][2 * j] = Double.parseDouble(tabtoken.nextToken());
                 A[i][2 * j + 1] = Double.parseDouble(tabtoken.nextToken());
             }
-        }
-        Jama.Matrix M = new Jama.Matrix(A);
-        EigenvalueDecomposition E = new EigenvalueDecomposition(M.eig());
 
-        Jama.Matrix vec = E.getV();
+            //프로크루스테스 정렬
+            alignDatum = procrustes(A[i]);
+
+            for (int j = 0; j < 76; j++) {
+
+                A[i][2 * j] = alignDatum[2 * j];
+                A[i][2 * j + 1] = alignDatum[2 * j + 1];
+            }
+
+        }
+
+//        평균 구하기
+        Jama.Matrix Data = new Jama.Matrix(A);
+
+        double[][] Edouble = new double[1][76 * 2];
+        Jama.Matrix E = new Jama.Matrix(Edouble);
+
+
+        double temp = 0;
+        for (int i = 0; i < 76 * 2; i++) {
+
+            for (int j = 0; j < dataSize; j++) {
+
+                temp += Data.get(j, i);
+
+            }
+            temp = temp / dataSize;
+            E.set(0, i, temp);
+            Edouble[0][i] = temp;
+            temp = 0;
+        }
+
+        String a = "";
+
+        for (int j = 0; j < 76 * 2; j++) {
+//                    Log.e(TAG, j+"열 시작");
+            a = a + " " + E.get(0, j);
+//                    Log.e(TAG, ""+M.get(i,j));
+        }
+
+        Log.e(TAG, "(" + a + ")");
+
+        a = "(";
+
+//ㅡㅡㅡㅡㅡㅡㅡㅡㅡdataSize*dataSize 차원의 공분산행렬 구하기
+        double[][] coveri = new double[dataSize][dataSize];
+        Jama.Matrix C = new Jama.Matrix(coveri);
+
+        for (int i = 0; i < dataSize; i++) {//dataSize
+            for (int j = 0; j < dataSize; j++) {   //pointSize * 2
+                for (int k = 0; k < 76 * 2; k++) {
+                    temp = temp + (Data.get(i, k) - E.get(0, k)) * (Data.get(j, k) - E.get(0, k));
+                }
+                temp = temp / (dataSize - 1);   //왜 dataSize-1인지는 모르겠지만...
+                C.set(i, j, temp);
+                temp = 0;
+            }
+        }
+
+//normalize? 필요할 것 같긴 하다...
+
+//ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ고유벡터 뽑아내기
+
+
+        EigenvalueDecomposition ed = C.eig();
+
+
+        Log.e(TAG, "CameraActivity: 공분산 C의 col수 = " + C.getColumnDimension() + " row수 = " + C.getRowDimension());
+
+
+        a = "(";
         try {
-            for (int i = 0; i < vec.getColumnDimension(); i++) {
-                for (int j = 0; i < vec.getRowDimension(); j++) {
-                    vec.print(i, j);
+            for (int i = 0; i < C.getColumnDimension(); i++) {
+//                Log.e(TAG, i+"행 시작");
+                for (int j = 0; j < C.getRowDimension(); j++) {
+//                    Log.e(TAG, j+"열 시작");
+                    a = a + " " + C.get(i, j);
+//                    Log.e(TAG, ""+M.get(i,j));
+                }
+
+                a += ")";
+                Log.e(TAG, "" + a);
+                a = "(";
+            }
+        } catch (Exception exx) {
+            exx.printStackTrace();
+            Log.e(TAG, "CameraActivity:1 error");
+
+        }
+
+//ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ고유벡터 크기순 정렬하기
+
+        Log.e(TAG, "CameraActivity:ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ이하 EigenValueㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+        Jama.Matrix x = ed.getD();
+
+        double Evalues[] = new double[dataSize];
+        int Erank[] = new int[dataSize];
+
+        Log.e(TAG, "CameraActivity: x value col = " + x.getColumnDimension() + " row = " + x.getRowDimension());
+
+        for (int i = 0; i < x.getRowDimension(); i++) {
+            Evalues[i] = x.get(i, i);
+        }
+        a = "(";
+
+        temp = 0;
+
+        for (int i = 0; i < dataSize; i++) {      //Evalues 내림차순 정렬
+            for (int j = 0; j < dataSize; j++) {
+
+                if (Evalues[i] < Evalues[j]) {
+                    temp = Evalues[j];
+                    Evalues[j] = Evalues[i];
+                    Evalues[i] = temp;
                 }
             }
-        }catch (Exception e){
+        }
+
+        for (int i = 0; i < dataSize; i++) {      //Evalues 내림차순 정렬
+            for (int j = 0; j < dataSize; j++) {
+
+                if (Evalues[i] == x.get(j, j)) {
+                    Erank[i] = j;
+                    break;
+                }
+
+            }
+        }
+
+
+        Log.e(TAG, "CameraActivity:ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ이하 EigenVectorㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+        Log.e(TAG, "CameraActivity: x vector col = " + x.getColumnDimension() + " row = " + x.getRowDimension());
+
+        x = ed.getV();
+        Jama.Matrix AlignedEigenVector = new Jama.Matrix(dataSize, dataSize);
+
+        for (int i = 0; i < dataSize; i++) {      //EigenVector를 고유값의 크기에 따라 재정렬.
+            for (int j = 0; j < dataSize; j++) {
+                AlignedEigenVector.set(i, j, x.get(Erank[i], j));
+            }
+        }
+
+        Log.e(TAG, "CameraActivity: AlignedEigenVector col = " + x.getColumnDimension() + " row = " + x.getRowDimension());
+        a = "(";
+        x = ed.getV();
+
+        try {
+            for (int i = 0; i < x.getColumnDimension(); i++) {
+                for (int j = 0; j < x.getRowDimension(); j++) {
+                    a = a + " " + AlignedEigenVector.get(i, j);
+//                    Log.e(TAG, ""+x.get(i,j));
+                }
+                a += ")";
+                Log.e(TAG, "" + a);
+                a = "(";
+            }
+        } catch (Exception exx) {
+            exx.printStackTrace();
+            Log.e(TAG, "CameraActivity:3 error");
 
         }
+
+        HashMap<Integer, double[]> delauney = delauney(Edouble[0]);
+
+        for (int i = 0; i < delauney.size(); i++) {
+
+            Log.e(TAG, i + "번째 삼각형 : " + delauney.get(i)[0] + " , " + delauney.get(i)[1] + ", " + delauney.get(i)[2]);
+
+        }
+
+        int input = 0;
+
+        /*
+         grayScaling;
+        */
+
+        /*
+         //알고리즘
+         x = x0 + pi*bi;
+       */
 
 
     }
 
 
-//        double [] average = new double[76 * 2];
-//        double [][] covMatrix = new double[76 * 2][76 * 2];
-//
-//        for (int i = 0; i < 76; i++){
-//            for (int j = 0; j < dataSize; j++) {
-//                average[2 * i] += point[j][2 * i];     // x  j는 이름, j+1은 태그
-//                average[2 * i + 1] += point[j][2 * i+1];   // y
-//            }
-//            average[2 * i] = average[2 * i] / dataSize;
-//            average[2 * i + 1] = average[2 * i + 1] / dataSize;
-//        }
-//
-//        for ( int i = 0;  i < 142; i++){
-//            for (int j = 0; j < 142; j++) {
-//                covMatrix[i][j] += (point[i][j] - average[j])*(point[j][i] - average[i]);   //142*142
-//            }
-//        }
-//        for ( int i = 0;  i < 142; i++){
-//            for (int j = 0; j < 142; j++) {
-//                covMatrix[i][j] = covMatrix[i][j] / (76 - 1);
-//            }
-//        }
+    public double[] procrustes(double[] datum) {
 
-
-//                                    mLogger.debug("좌표 = (" + lattitude2 + ", " + longitude2 + "), 이동 거리 = " + intervalDistance + "m, 속도 = " + 3.6 * intervalDistance / intervalTime + "m/s, 총 거리 = " + distance + ", 지금 시각 = " + h + "시 " + m + "분 " + s + "초 , " + intervalTime + "초 간격");
-
-
-//        String [] list = data.split("[\\r\\n]+");
-//        String[][] values = new String[list.length][76*2+2];
-//        for(int i = 0; i < list.length ; i++){
-//            values[i] = list[i].split(",");// n은 이름, n+1은 태그, n+2k은 xk-1, n+2k+1은 yk-1
-//        }
-//
-//        double [] average = new double[76*2];
-//눈 위치는 (x31,y31)과 (x36,y36)
-
-
-
-    public double[] procrustes(double x1, double y1, double x2, double y2) {
         //미리 계산된 평균 average 값
         double[] average = {201, 348, 201, 381, 202, 408, 209, 435, 224, 461, 241, 483, 264, 498, 292, 501, 319, 493, 338, 470, 353, 448, 363, 423, 367, 395, 366, 371, 357, 344, 355, 316, 340, 311, 325, 318, 309, 328, 327, 324, 342, 317, 217, 328, 231, 323, 250, 327, 269, 333, 251, 334, 233, 331, 229, 345, 240, 337, 262, 349, 242, 352, 241, 344, 346, 337, 330, 330, 318, 341, 334, 344, 330, 336, 280, 344, 278, 381, 264, 399, 273, 406, 293, 409, 316, 399, 321, 392, 304, 376, 296, 342, 279, 402, 310, 399, 251, 431, 268, 427, 284, 425, 293, 425, 302, 423, 316, 425, 329, 426, 320, 442, 309, 451, 295, 454, 278, 452, 263, 442, 277, 440, 293, 442, 313, 437, 313, 429, 293, 432, 277, 431, 293, 436, 295, 395, 234.5, 341, 251, 343, 252, 350.5, 235.5, 348.5, 338, 333.5, 324, 335.5, 326, 342.5, 340, 340.5};
 //눈 위치는 (x31,y31)과 (x36,y36)
 
         //프로크루스테스 정렬
 
-        return average;
+        int size = datum.length;
+        /*
+
+        translation
+
+        */
+        double xm = 0, ym = 0, xa = 0, ya = 0;
+        for (int i = 0; i < (size / 2); i++) {         // 모든 (x,y) 점의 평균을 구함
+            xm = xm + datum[2 * i];
+            ym = ym + datum[2 * i + 1];
+            xa = xa + average[2 * i];
+            ya = ya + datum[2 * i + 1];
+        }
+        xm = xm / size;
+        ym = ym / size;
+        xa = xa / size;
+        ya = ya / size;
+
+        for (int i = 0; i < (datum.length / 2); i++) {         // 원점으로 이동
+            datum[2 * i] = datum[2 * i] - xm;
+            datum[2 * i + 1] = datum[2 * i + 1] - ym;
+            average[2 * i] = average[2 * i] - xa;
+            average[2 * i + 1] = average[2 * i + 1] - ya;
+        }
+
+        /*
+
+        scaling
+
+        */
+        double s = 0;
+        double sa = 0;
+        double rate = 0;
+        for (int i = 0; i < (size / 2); i++) {
+            s = s + datum[2 * i] * datum[2 * i] + datum[2 * i + 1] * datum[2 * i + 1];
+            sa = sa + average[2 * i] * average[2 * i] + average[2 * i + 1] * average[2 * i + 1];
+        }
+        s = Math.sqrt(s);
+        sa = Math.sqrt(sa);
+        rate = s / sa;
+
+        /* 비율을 조절할까? 조절할 필요는?
+        for(int i = 0; i < (datum.length/2) ; i++){
+            datum[2*i] = datum[2*i]/rate;
+            datum[2*i+1] = datum[2*i+1]/rate;
+            average[2*i] = average[2*i] - xa;
+            average[2*i+1] = average[2*i+1] - ya;
+        }
+        */
+
+        /*
+
+        rotation        //3차원일때는 SVD를 이용하여 rotation mat R을 찾는것이 쉬울것
+
+        */
+
+        double theta = 0;
+        double u = 0, v = 0;
+
+        double tempx = 0, tempy = 0;
+        for (int i = 0; i < (size / 2); i++) {
+            u = Math.atan2(datum[2 * i + 1], datum[2 * i]);
+            v = Math.atan2(average[2 * i + 1], average[2 * i]);
+            theta = theta + v - u;
+        }
+
+        theta = theta / size;
+
+        for (int i = 0; i < (size / 2); i++) {
+
+            tempx = datum[2 * i];
+            tempy = datum[2 * i + 1];
+
+            //회전행렬 변환
+            datum[2 * i] = tempx * Math.cos(theta) + tempy * Math.sin(theta);
+            datum[2 * i + 1] = tempx * (-Math.sin(theta)) + tempy * Math.cos(theta);
+
+        }
+
+//
+//
+//        /*
+//
+//        Align
+//
+//         */
+//
+//        for(int i = 0; i < (size/2) ; i++) {         // 원점으로 이동
+//            datum[2 * i]  = (datum[2 * i] - xm)/s;
+//            datum[2 * i+1] = (datum[2 * i+1] - ym)/s;
+//        }
+//
+//        Bundle ret = new Bundle();
+//        ret.putDouble("rotation", theta);
+//        ret.putDouble("scaling",s);
+//        ret.putDouble("Xtranslation",xm);
+//        ret.putDouble("Ytranslation",ym);
+//
+//        ret.putDoubleArray("datum",datum);
+
+
+        return datum;
     }
 
+
+    public int getDelauney(HashMap<Integer, int[]> delauney, double[] datum, double[] average) {
+
+        NativeFunc nativeFunc = new NativeFunc();
+        //       nativeFunc.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr(), seek);
+
+        int cols = 0;//getCols();
+        int rows = 0;//getRows();
+
+
+        double x1 = 0, x2 = 0, x3 = 0, y1 = 0, y2 = 0, y3 = 0, a = 0, b = 0, c = 0, xn1 = 0, xn2 = 0, xn3 = 0, yn1 = 0, yn2 = 0, yn3 = 0, x, y;
+        int triangle;
+        int tsize = 0; //int tsize = delauney.size();
+
+        //TODO:탐색범위 제한
+        double ep = 0;
+        for (int i = 0; i < cols; i++) {
+            for (int j = 0; j < rows; j++) {
+
+            /*
+                현재 위치를 affine 변환 후, 얼굴 영역인지 확인
+            */
+
+                triangle = -1;
+
+                for (int k = 0; k < delauney.size(); k++) {   //현재 점이 입력영상의 들로네 삼각형 안에 있는지 확인
+
+                    x1 = datum[2 * delauney.get(k)[0]];
+                    x2 = datum[2 * delauney.get(k + 1)[0]];
+                    x3 = datum[2 * delauney.get(k + 2)[0]];
+
+                    y1 = datum[2 * delauney.get(k)[0] + 1];
+                    y2 = datum[2 * delauney.get(k + 1)[0] + 1];
+                    y3 = datum[2 * delauney.get(k + 2)[0] + 1];
+
+
+                    if (((x3 - x1) * (y1 - y2) - (y3 - y1) * (x1 - x2)) * ((i - x1) * (y1 - y2) - (j - y1) * (x1 - x2)) < 0)
+                        continue;  //1과2 -> x,3
+                    if (((x1 - x2) * (y2 - y3) - (y1 - y3) * (x2 - x3)) * ((i - x2) * (y2 - y3) - (j - y2) * (x2 - x3)) < 0)
+                        continue; //2,3 -> x,1
+                    if (((x2 - x3) * (y3 - y1) - (y3 - y3) * (x3 - x1)) * ((i - x3) * (y3 - y1) - (j - y3) * (x3 - x1)) < 0)
+                        continue;//3,1 -> x,2
+//http://zockr.tistory.com/83
+                    triangle = k;
+                    break;
+                }
+
+//            if(triangle == -1){ continue;} //affine  변환된 점이 삼각형 내부의 점이 아님
+
+                // k번째 입력영상 들로네 삼각형의 좌표 지정
+
+
+                c = ((j - y1) - (i - x1) * (y2 - y1)) /
+                        (y3 - y1 - x3 * y3 + x3 * y1 + x1 * y2 - x1 * y1);
+                b = (i - x1) - c * (x3 - x1);
+                a = 1 - (b + c);
+
+
+                x = a * xn1 + b * xn2 + c * xn3;
+                y = a * yn1 + b * yn2 + c * yn3;
+
+                //ep 받아오기
+
+            }
+        }
+
+        return 0;
+    }
+
+
+    public HashMap delauney(double[] datum) {
+
+        int size = datum.length;
+        double x1, y1, x2, y2, x3, y3;
+        double x, y, c1, c2;
+        double r2;
+        boolean pass = true;
+
+
+        HashMap<Integer, int[]> del = new HashMap<>();
+        int[] triangle = new int[3];
+
+        String dela = "";
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                for (int k = 0; k < size; k++) {
+
+
+                    if (i == j || j == k || k == i) break;
+
+                    x1 = datum[2 * i];
+                    x2 = datum[2 * j];
+                    x3 = datum[2 * k];
+                    y1 = datum[2 * i + 1];
+                    y2 = datum[2 * j + 1];
+                    y3 = datum[2 * k + 1];
+
+                    c1 = (y1 + y2) / 2 + ((x2 - x1) * (x2 + x1) / 2) / (y2 - y1);
+                    c2 = (y1 + y3) / 2 + ((x3 - x1) * (x3 + x1) / 2) / (y3 - y1);
+
+                    x = (c2 - c1) * (x2 - x1) * (x3 - x1) / ((y2 - y1) * (x3 - x1) - (y3 - y1) * (x2 - x1));
+                    y = (y2 - y1) * x / (x2 - x1) + c1;
+
+                    r2 = ((x - x1) * (x - x1) + (y - y1) * (y - y1));
+
+
+                    for (int l = 0; l < size; l++) {
+                        if (l != i && l != j && l != k) {
+                            if (r2 > (x - datum[2 * l]) * (x - datum[2 * l]) + (y - datum[2 * l + 1]) * (y - datum[2 * l + 1])) {
+                                pass = false;
+                            }
+                        }
+                    }
+
+                    if (pass) { //들로네 삼각형 추가
+                        int temp;
+                        if (i > j) {
+                            temp = j;
+                            j = i;
+                            i = temp;
+                        }
+
+                        if (j > k) {
+                            temp = j;
+                            j = i;
+                            i = temp;
+                        }
+
+                        if (i > k) {
+                            temp = k;
+                            k = i;
+                            i = temp;
+
+                        }
+                        triangle[0] = i;
+                        triangle[1] = j;
+                        triangle[2] = k;
+
+
+                        if (!del.containsValue(triangle)) {
+                            del.put(del.size(), triangle);
+                            dela += i + "\t" + "j" + "\t" + "k" + "\t"; //"\n"; //C++ strtok때문에 바꿈
+                        }
+                    }
+                    pass = true;
+
+                }//for(k)
+            }//for(j)
+        }//for(i)
+        try {
+            String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath();
+            File dir = new File(ex_storage + File.separator + "Phairy" + File.separator + "dela" + File.separator);
+            dir.mkdir();
+            File file = new File(ex_storage + File.separator + "Phairy" + File.separator + "dela" + File.separator + "dela.txt");  //파일 생성!
+            FileOutputStream fos = new FileOutputStream(file, true);  //mode_append
+            fos.write(dela.getBytes());
+            fos.close();
+
+        } catch (Exception e) {
+        }
+        return del;
+    }
+
+
+    public void makeFile() {
+
+
+        String ex_storage = Environment.getExternalStorageDirectory().getAbsolutePath();
+        // Get Absolute Path in External Sdcard
+        String folder_name = "/Phairy/image/";
+
+        String string_path = ex_storage + folder_name;
+        Drawable drawable;
+        File file_path;
+        try {
+            file_path = new File(string_path);
+            if (!file_path.isDirectory()) {
+                file_path.mkdirs();
+            }
+            FileOutputStream out = new FileOutputStream(string_path + "i000qa.jpg");
+            drawable = getResources().getDrawable(R.drawable.i000qa);
+
+            Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+            out.close();
+
+        } catch (FileNotFoundException exception) {
+            Log.e("FileNotFoundException", exception.getMessage());
+        } catch (IOException exception) {
+            Log.e("IOException", exception.getMessage());
+        }
+
+        Field[] fields = R.raw.class.getFields();
+
+        try {
+            file_path = new File(folder_name);
+            if (!file_path.isDirectory()) {
+                file_path.mkdirs();
+            }
+        } catch (Exception e) {
+
+        }
+
+        Bitmap[] bitmap = new Bitmap[fields.length - 2];
+
+
+        try {
+
+            int y = bitmap[5].getHeight();
+            int x = bitmap[5].getWidth();
+
+            double bValue = 0;
+            double gValue = 0;
+            double rValue = 0;
+            double grayscale = 0;
+
+            for (int count = 0; count < fields.length; count++) {
+                Log.i("Raw Asset: ", fields[count].getName());
+
+                if (fields[count].getName().equals("backg.jpg") || fields[count].getName().equals("deer.jpg"))
+                    continue;
+                drawable = getResources().getDrawable(getResources().getIdentifier("@drawable/" + fields[count].getName(), "drawable", this.getPackageName()));
+
+                bitmap[count] = ((BitmapDrawable) drawable).getBitmap();
+            }
+//        gray 화 + 평균 구하기
+            double[][][] A = new double[fields.length - 2][x][y];
+
+            double[][] Edouble = new double[1][x * y];//1열
+            Jama.Matrix E = new Jama.Matrix(Edouble);
+
+
+            String aver="";
+
+            for (int j = 0; j < y; j++) {//height
+                for (int i = 0; i < x; i++) {//width
+                    for (int k = 0; j < fields.length - 2; j++) {
+                        bValue += bitmap[k].getPixel(i, j) & 0x000000FF;
+                        gValue += (bitmap[k].getPixel(i, j) & 0x0000FF00) >> 8;
+                        rValue += (bitmap[k].getPixel(i, j) & 0x00FF0000) >> 16;
+
+                        grayscale = 0.587 * gValue + 0.299 * rValue + 0.114 * bValue;
+
+                        A[k][i][j] = grayscale;
+
+                        aver = "" + grayscale;
+                    }
+                    grayscale = grayscale / fields.length - 2;
+                    E.set(0, j * y + i, grayscale);
+                    grayscale = 0;
+                    aver = aver + "\n";
+                }
+            }
+
+
+            String ext;
+            File file;
+            FileOutputStream fos;
+            File dir;
+            ext = Environment.getExternalStorageState();
+            String mSdPath;
+
+            if (ext.equals(Environment.MEDIA_MOUNTED)) {
+                mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+            } else {
+                mSdPath = Environment.MEDIA_UNMOUNTED;
+            }
+
+            dir = new File(mSdPath + File.separator + "pHairy" + File.separator + "imgV" + File.separator);
+            dir.mkdir();
+
+            file = new File(mSdPath + File.separator + "pHairy" + File.separator + "imgV" + File.separator + "imgVector");  //파일 생성!
+
+            fos = new FileOutputStream(file, true);  //mode_append
+
+            fos.write(aver.getBytes());
+            fos.close();
+//ㅡㅡㅡㅡㅡㅡㅡㅡㅡdataSize*dataSize 차원의 공분산행렬 구하기
+            double[][] coveri = new double[fields.length - 2][fields.length - 2];
+            Jama.Matrix C = new Jama.Matrix(coveri);
+
+            double temp = 0;
+            int h, v;
+            for (int i = 0; i < fields.length - 2; i++) {//dataSize
+                for (int j = 0; j < fields.length - 2; j++) {   //pointSize * 2
+                    for (int k = 0; k < x * y; k++) {
+                        h = y % k;
+                        v = y / k;
+                        temp = temp + (A[i][h][v] - E.get(0, k)) * (A[j][h][v] - E.get(0, k));
+                    }
+                    temp = temp / (fields.length - 2 - 1);   //왜 dataSize-1인지는 모르겠지만...
+                    C.set(i, j, temp);
+                    temp = 0;
+                }
+            }
+
+//normalize? 필요할 것 같긴 하다...
+
+//ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ고유벡터 뽑아내기
+
+
+            EigenvalueDecomposition ed = C.eig();
+
+
+            Log.e(TAG, "CameraActivity: 공분산 C의 col수 = " + C.getColumnDimension() + " row수 = " + C.getRowDimension());
+
+
+            String a = "(";
+            try {
+                for (int i = 0; i < C.getColumnDimension(); i++) {
+//                Log.e(TAG, i+"행 시작");
+                    for (int j = 0; j < C.getRowDimension(); j++) {
+//                    Log.e(TAG, j+"열 시작");
+                        a = a + " " + C.get(i, j);
+//                    Log.e(TAG, ""+M.get(i,j));
+                    }
+
+                    a += ")";
+                    Log.e(TAG, "" + a);
+                    a = "(";
+                }
+            } catch (Exception exx) {
+                exx.printStackTrace();
+                Log.e(TAG, "CameraActivity:1 error");
+
+            }
+
+//ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ고유벡터 크기순 정렬하기
+
+            Log.e(TAG, "CameraActivity:ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ이하 EigenValueㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+            Jama.Matrix xx = ed.getD();
+
+            double Evalues[] = new double[fields.length - 2];
+            int Erank[] = new int[fields.length - 2];
+
+            Log.e(TAG, "CameraActivity: x value col = " + xx.getColumnDimension() + " row = " + xx.getRowDimension());
+
+            for (int i = 0; i < xx.getRowDimension(); i++) {
+                Evalues[i] = xx.get(i, i);
+            }
+            a = "(";
+
+            temp = 0;
+
+            for (int i = 0; i < fields.length - 2; i++) {      //Evalues 내림차순 정렬
+                for (int j = 0; j < fields.length - 2; j++) {
+
+                    if (Evalues[i] < Evalues[j]) {
+                        temp = Evalues[j];
+                        Evalues[j] = Evalues[i];
+                        Evalues[i] = temp;
+                    }
+                }
+            }
+
+            for (int i = 0; i < fields.length - 2; i++) {      //Evalues 내림차순 정렬
+                for (int j = 0; j < fields.length - 2; j++) {
+
+                    if (Evalues[i] == xx.get(j, j)) {
+                        Erank[i] = j;
+                        break;
+                    }
+
+                }
+            }
+
+
+            Log.e(TAG, "CameraActivity:ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ이하 EigenVectorㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ");
+            Log.e(TAG, "CameraActivity: x vector col = " + xx.getColumnDimension() + " row = " + xx.getRowDimension());
+
+            xx = ed.getV();
+            Jama.Matrix AlignedEigenVector = new Jama.Matrix(fields.length - 2, fields.length - 2);
+
+            for (int i = 0; i < fields.length - 2; i++) {      //EigenVector를 고유값의 크기에 따라 재정렬.
+                for (int j = 0; j < fields.length - 2; j++) {
+                    AlignedEigenVector.set(i, j, xx.get(Erank[i], j));
+                }
+            }
+
+            Log.e(TAG, "CameraActivity: AlignedEigenVector col = " + xx.getColumnDimension() + " row = " + xx.getRowDimension());
+
+            xx = ed.getV();
+
+            try {
+                for (int i = 0; i < xx.getColumnDimension(); i++) {
+                    for (int j = 0; j < xx.getRowDimension(); j++) {
+                        a = a + " " + AlignedEigenVector.get(i, j);
+//                    Log.e(TAG, ""+x.get(i,j));
+                    }
+                    a+="\n";
+
+                }
+                Log.e(TAG, "" + a);
+                dir = new File(mSdPath + File.separator + "pHairy" + File.separator + "imgV" + File.separator);
+                dir.mkdir();
+
+                file = new File(mSdPath + File.separator + "pHairy" + File.separator + "imgV" + File.separator + "imgVector");  //파일 생성!
+
+                fos = new FileOutputStream(file, true);  //mode_append
+
+                fos.write(a.getBytes());
+                fos.close();
+
+            } catch (Exception exx) {
+                exx.printStackTrace();
+                Log.e(TAG, "CameraActivity:3 error");
+
+            }
+
+        } catch (Exception e) {
+
+        }
+
+    }
+
+    private String[] getTitleList() //알아 보기 쉽게 메소드 부터 시작합니다.
+    {
+        try {
+
+            //TODO 50kb이하 파일은 그냥 삭제시킬까?
+//            FilenameFilter fileFilter = new FilenameFilter()  //이부분은 특정 확장자만 가지고 오고 싶을 경우 사용하시면 됩니다.
+//            {
+//                public boolean accept(File dir, String name)
+//                {
+//                    return name.endsWith("gpx"); //이 부분에 사용하고 싶은 확장자를 넣으시면 됩니다.
+//                } //end accept
+//            };
+            String mSdPath;
+            String ext = Environment.getExternalStorageState();
+            if (ext.equals(Environment.MEDIA_MOUNTED)) {
+                mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+            } else {
+                mSdPath = Environment.MEDIA_UNMOUNTED;
+            }
+
+            File file = new File(mSdPath + File.separator + "Phairy" + File.separator + "image" + File.separator);
+
+            File[] files = file.listFiles();//위에 만들어 두신 필터를 넣으세요. 만약 필요치 않으시면 fileFilter를 지우세요.
+
+            String[] titleList = new String[files.length]; //파일이 있는 만큼 어레이 생성했구요
+
+            for (int i = 0; i < files.length; i++) {
+                titleList[i] = files[i].getName();    //루프로 돌면서 어레이에 하나씩 집어 넣습니다.
+
+            }//end for
+            return titleList;
+
+        } catch (Exception e) {
+
+            return null;
+        }//end catch()
+    }//end getTitleList
+
+    public void PCAImgAnalysis() {
+        String[] fileList = getTitleList();
+
+        if (fileList != null || fileList.length == 0) {
+            return;
+        }
+
+        String mSdPath;
+        String ext = Environment.getExternalStorageState();
+        if (ext.equals(Environment.MEDIA_MOUNTED)) {
+            mSdPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        } else {
+            mSdPath = Environment.MEDIA_UNMOUNTED;
+        }
+        for (int i = 0; i < fileList.length; i++) {
+            File file = new File(mSdPath + File.separator + "Phairy" + File.separator + "image" + File.separator + fileList[i]);
+        }
+    }
 }
+
+//http://s-pear.tistory.com/7 intensity

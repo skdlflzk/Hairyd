@@ -169,7 +169,7 @@ public class CameraTest extends AppCompatActivity implements CvCameraViewListene
 
         for(int i=0; i <3 ; i++){
             screen[i] = new Mat(height, width, CvType.CV_8UC4);
-        };
+        }
     }
 
     @Override
