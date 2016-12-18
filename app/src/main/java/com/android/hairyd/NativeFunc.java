@@ -16,4 +16,8 @@ public class NativeFunc {
 
     public native double[] AAMfitting(long addrGray, long addrRgba,double[] datum, double[] average );
 
+    public native long getGradient(long addrGray);
+
+    public native boolean IsIntersect(double ax, double ay,double bx,double by,double cx,double cy,double x,double y) ;
+
 }

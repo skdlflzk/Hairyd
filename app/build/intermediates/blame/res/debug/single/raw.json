@@ -1,5 +1,9 @@
 [
     {
+        "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\raw\\shapedata",
+        "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\raw\\shapedata"
+    },
+    {
         "merged": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\build\\intermediates\\res\\merged\\debug\\raw\\haarcascade_eye.xml",
         "source": "C:\\Users\\aa\\StudioProjects\\Hairyd\\app\\src\\main\\res\\raw\\haarcascade_eye.xml"
     },

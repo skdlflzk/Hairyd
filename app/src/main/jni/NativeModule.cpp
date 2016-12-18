@@ -145,98 +145,98 @@ JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_FindFeatures(JNIEnv *,
     }
 }
 JNIEXPORT double JNICALL Java_com_android_hairyd_NativeFunc_AAMfitting(JNIEnv *env, jobject,
-                                                                             jlong addrGray,
-                                                                             jlong addrRgba,
-                                                                             jdoubleArray data,
-                                                                             jdoubleArray averages) {  //들로네 삼각형 해시맵을 전달...
+                                                                       jlong addrGray,
+                                                                       jlong addrRgba,
+                                                                       jdoubleArray data,
+                                                                       jdoubleArray averages) {  //들로네 삼각형 해시맵을 전달...
 
     __android_log_print(ANDROID_LOG_WARN, "NDK",
                         "ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡAAMfitting...");
 /*
   초기화 및 double형 배열 C에 맞게 변형
- */
-    Mat &mGr = *(Mat *) addrGray;
-    Mat &mRgb = *(Mat *) addrRgba;
-
-    jdouble *datum = (*env)->GetDoubleArrayElements(env, data, NULL);
-    if (datum == NULL) {
-        return 0;
-    }
-    jdouble *average = (*env)->GetDoubleArrayElements(env, averages, NULL);
-    if (average == NULL) {
-        return 0;
-    }
-    jsize len = (*env)->GetArrayLength(env, datum);
-
-
-    double x1, x2, x3, y1,y2,y3, a, b, c, xn, yn;
-    int triangle;
-    int tsize = 0; //int tsize = delauney.size();
-
-    bool p1,p2,p3;
-    //TODO:탐색범위 제한
+// */
+//    Mat &mGr = *(Mat *) addrGray;
+//    Mat &mRgb = *(Mat *) addrRgba;
+//
+//    jdouble *datum = (*env)->GetDoubleArrayElements(env, data, NULL);
+//    if (datum == NULL) {
+//        return 0;
+//    }
+//    jdouble *average = (*env)->GetDoubleArrayElements(env, averages, NULL);
+//    if (average == NULL) {
+//        return 0;
+//    }
+//    jsize len = (*env)->GetArrayLength(env, datum);
+//
+//
+//    double x1, x2, x3, y1,y2,y3, a, b, c, xn, yn;
+//    int triangle;
+//    int tsize = 0; //int tsize = delauney.size();
+//
+//    bool p1,p2,p3;
+//    //TODO:탐색범위 제한
     double ep = 0;
-
-    for (int i = 0; i < mGr.cols; i++) {
-        for (int j = 0; j < mGr.rows; j++) {
-
-            /*
-                현재 위치를 affine 변환 후, 얼굴 영역인지 확인
-            */
-
-
-            triangle = -1;
-
-            for(int k = 0; k < tsize ; k++) {   //현재 점이 입력영상의 들로네 삼각형 안에 있는지 확인
-
-                x1 = 0; //x1 = datum[2 * delauney[triangle][0]]
-                x2 = 0; //x2 = datum[2 * delauney[triangle][1]]
-                x3 = 0;
-                y1 = 0; //y1 = datum[2 * delauney[triangle][0]+1]
-                y2 = 0;
-                y3 = 0;
-
-
-                if (((x3-x1)*(y1-y2)-(y3-y1)*(x1-x2))*((i-x1)*(y1-y2)-(j-y1)*(x1-x2)) < 0) continue;  //1과2 -> x,3
-                if (((x1-x2)*(y-y3)-(y1-y3)*(x2-x3))*((i-x2)*(y2-y3)-(j-y2)*(x2-x3)) < 0) continue; //2,3 -> x,1
-                if (((x2-x3)*(y3-y1)-(y3-y3)*(x3-x1))*((i-x3)*(y3-y1)-(j-y3)*(x3-x1)) < 0) continue;//3,1 -> x,2
-//http://zockr.tistory.com/83
-                triangle = k;
-                break;
-            }
-
-//            if(triangle == -1){ continue;} //affine  변환된 점이 삼각형 내부의 점이 아님
-
-            // k번째 입력영상 들로네 삼각형의 좌표 지정
-
-            c = ((j - y1) - (i - x1) * (y2 - y1)) /
-                (y3 - y1 - x3 * y3 + x3 * y1 + x1 * y2 - x1 * y1);
-            b = (i - x1) - c * (x3 - x1);
-            a = 1 - (b + c);
-
-
-            // 평균영상으로 affine 변환
-
-            //xn = a*average[2*delauney[triangle][0]] + b*average[2*delauney[triangle][1]] + c*average[2*delauney[triangle][2]];
-            //yn = a*average[2*delauney[triangle][0]+1] + b*average[2*delauney[triangle][1]+1] + c*average[2*delauney[triangle][2]+1];
-
-
-            uchar gn = (uchar) mGr.data[(i * hsv.rows) + j]; //1채널 +0 필요없음
-            uchar gm = (uchar) YCrCb_channels[2].data[(i * hsv.rows) + j + 0];
-
-            ep += (gn-gm)*(gn-gm);
-
-        }
-    }
-
+//
+//    for (int i = 0; i < mGr.cols; i++) {
+//        for (int j = 0; j < mGr.rows; j++) {
+//
+//            /*
+//                현재 위치를 affine 변환 후, 얼굴 영역인지 확인
+//            */
+//
+//
+//            triangle = -1;
+//
+//            for(int k = 0; k < tsize ; k++) {   //현재 점이 입력영상의 들로네 삼각형 안에 있는지 확인
+//
+//                x1 = 0; //x1 = datum[2 * delauney[triangle][0]]
+//                x2 = 0; //x2 = datum[2 * delauney[triangle][1]]
+//                x3 = 0;
+//                y1 = 0; //y1 = datum[2 * delauney[triangle][0]+1]
+//                y2 = 0;
+//                y3 = 0;
+//
+//
+//                if (((x3-x1)*(y1-y2)-(y3-y1)*(x1-x2))*((i-x1)*(y1-y2)-(j-y1)*(x1-x2)) < 0) continue;  //1과2 -> x,3
+//                if (((x1-x2)*(y-y3)-(y1-y3)*(x2-x3))*((i-x2)*(y2-y3)-(j-y2)*(x2-x3)) < 0) continue; //2,3 -> x,1
+//                if (((x2-x3)*(y3-y1)-(y3-y3)*(x3-x1))*((i-x3)*(y3-y1)-(j-y3)*(x3-x1)) < 0) continue;//3,1 -> x,2
+////http://zockr.tistory.com/83
+//                triangle = k;
+//                break;
+//            }
+//
+////            if(triangle == -1){ continue;} //affine  변환된 점이 삼각형 내부의 점이 아님
+//
+//            // k번째 입력영상 들로네 삼각형의 좌표 지정
+//
+//            c = ((j - y1) - (i - x1) * (y2 - y1)) /
+//                (y3 - y1 - x3 * y3 + x3 * y1 + x1 * y2 - x1 * y1);
+//            b = (i - x1) - c * (x3 - x1);
+//            a = 1 - (b + c);
+//
+//
+//            // 평균영상으로 affine 변환
+//
+//            //xn = a*average[2*delauney[triangle][0]] + b*average[2*delauney[triangle][1]] + c*average[2*delauney[triangle][2]];
+//            //yn = a*average[2*delauney[triangle][0]+1] + b*average[2*delauney[triangle][1]+1] + c*average[2*delauney[triangle][2]+1];
+//
+//
+//            uchar gn = (uchar) mGr.data[(i * hsv.rows) + j]; //1채널 +0 필요없음
+//            uchar gm = (uchar) YCrCb_channels[2].data[(i * hsv.rows) + j + 0];
+//
+//            ep += (gn-gm)*(gn-gm);
+//
+//        }
+//    }
+//
 
     return ep;
 
 }
 
 JNIEXPORT double JNICALL Java_com_android_hairyd_NativeFunc_drawPoint(JNIEnv *, jobject,
-                                                                    jlong addrRgba,
-                                                                    jfloat x, jfloat y) {
+                                                                      jlong addrRgba,
+                                                                      jfloat x, jfloat y) {
 
 
     __android_log_print(ANDROID_LOG_WARN, "NDK",
@@ -247,6 +247,8 @@ JNIEXPORT double JNICALL Java_com_android_hairyd_NativeFunc_drawPoint(JNIEnv *, 
 
 
     circle(mRgb, cvPoint((int) x, (int) y), 2, cvScalar(255, 0, 0));
+
+    return 0.1;
 /*
  *
  */
@@ -255,214 +257,272 @@ JNIEXPORT double JNICALL Java_com_android_hairyd_NativeFunc_drawPoint(JNIEnv *, 
 
 
 JNIEXPORT Mat JNICALL Java_com_android_hairyd_NativeFunc_getCols(JNIEnv *, jobject,
-                                                                      jintArray inputImg, jdoubleArray inputShape, jdoubleArray baseShape) {
+                                                                 jintArray inputImg,
+                                                                 jdoubleArray inputShape,
+                                                                 jdoubleArray baseShape) {
 
-    jint *cintArray = env->GetIntArrayElements(inputImg, nullptr);
-    jsize length = env->GetArrayLength(inputImg);
-
-// 입력영상의 너비 높이
+//    jint *cintArray = env->GetIntArrayElements(inputImg, nullptr);
+//    jsize length = env->GetArrayLength(inputImg);
+//
+//// 입력영상의 너비 높이
     int width = 0, height = 0;
-
+//
     Mat InputImage(width, height, CV_8UC4, 0);  //받아온 intArray 를 담을 공간
+//
+//    for (int i = 0; i < height ; i++) {
+//      for (int j = 0; j < width; j++) {
+//
+//
+//          InputImage.data[(i * width) + j + 0] = mcintArray[i * width + j + 0];
+//          InputImage.data[(i * width) + j + 1] = mcintArray[i * width + j + 1];
+//          InputImage.data[(i * width) + j + 2] = mcintArray[i * width + j + 2];
+//
+//        }
+//    }
+//
+//    env->ReleaseIntArrayElements(inputImg, cintArray, 0);
+//    //https://skyfe79.gitbooks.io/jni-tutorial/content/chapter17.html
+//
+//    jsize length = env->GetArrayLength(inputShape);
+//    if(length == 0)
+//        return nullptr;
+//
+//    //convert java-array to c-array jdouble[]
+//    jdouble *cdoubleArray = env->GetDoubleArrayElements(inputShape, nullptr);
+//
+//    double datum[152] ;  //
+//    //add value
+//
+//    for(int i = 0; i<length; i++) {
+//        datum[i]= cdoubleArray[i];
+//    }
+//
+//    length = env->GetArrayLength(inputShape);
+//
+//    if(length == 0)
+//        return nullptr;
+//
+//    cdoubleArray = env->GetDoubleArrayElements(baseShape, nullptr);
+//
+//    double average[152] ;
+//
+//    for(int i = 0; i<length; i++) {
+//        average[i]= cdoubleArray[i];
+//    }
+////TODO    env->ReleaseDoubleArrayElements(inputArray, cdoubleArray, 0); 해줘야되지않나? 메모리누수
+////    env->ReleaseDoubleArrayElements(doubleArray, cdoubleArray, 0);
+//
+//
+////입력영상 흑백
+//
+//    cvtColor(InputImage, InputImage, CV_RGB2GRAY);
+//
+////평균영상 불러오기
+//    FILE* file = fopen("/sdcard//Phairy/image/i000qa.jpg" , "rb" );//전역변수로 어플 실행 마다 한번만.
+//
+//    Mat baseImage = imread(file, IMREAD_GRAYSCALE);
+//
+////들로네 정보 파싱
+//
+//    FILE* pFile = fopen("/sdcard//Phairy/dela/dela.txt" , "rb" );//전역변수로 어플 실행 마다 한번만.
+//    char str [1000];
+//
+//    fscanf (pFile, "%s", str);
+//    fclose (pFile);
+//
+//
+//    char *token1 = NULL;
+//    char *token2 = NULL;
+////    char str1[] = "\n";
+//    char str2[] = "\t";     // 모두 \t로 변경
+//
+//    token1 = strtok( str, str2 );
+//
+//    int p1,p2,p3;
+//    std::map<int, int> delauney;    //전역변수로 어플 실행 마다 한번만.
+//    int tri=0;
+//    while( token1 != NULL )
+//    {
+//        token2 = strtok( token1, str2 );
+//        p1 = (int) *token2;
+//        delauney[tri*10+0] = p1;
+//
+//        token2 = strtok( NULL, str2 );
+//        p2 = (int) *token2;
+//        delauney[tri*10+1] = p2;
+//
+//        token2 = strtok( NULL, str2 );
+//        p3 = (int) *token2;
+//        delauney[tri*10+2] = p3;
+//
+//        tri++;
+//        token1 = strtok( NULL, str2 );
+//    }
+//
+//// delauney를 이용해 inputSh->baseSh affine 변환  이미지 마다 확인
+//
+//    int cols = 0;//getCols();
+//    int rows = 0;//getRows();
+//
+//
+//    double x1 = 0, x2 = 0, x3 = 0, y1 = 0, y2 = 0, y3 = 0, xn1 = 0, xn2 = 0, xn3 = 0, yn1 = 0, yn2 = 0, yn3 = 0, x, y;
+//    int triangle;
+//    int tsize = delauney.size(); //int tsize = delauney.size();
+//
+//    //TODO:탐색범위 제한
+//    double rp = 0;
+//    double hessian = 0;
+//    for (int i = 0; i < cols; i++) {
+//        for (int j = 0; j < rows; j++) {
+//
+//            /*
+//                현재 위치를 affine 변환 후, 얼굴 영역인지 확인
+//            */
+//            //현재 점(i,j)가 입력영상의 들로네 삼각형 안에 있는지 확인
+//            triangle = -1;
+//
+//            for (int k = 0; k < delauney.size(); k++) {
+//
+//                x1 = datum[2 * delauney[k*10+0]];
+//                x2 = datum[2 * delauney[k*10+1]];
+//                x3 = datum[2 * delauney[k*10+2]];
+//
+//                y1 = datum[2 * delauney[k*10+0]+0];
+//                y2 = datum[2 * delauney[k*10+1]+1];
+//                y3 = datum[2 * delauney[k*10+2]+2];
+//
+//
+//                if (((x3 - x1) * (y1 - y2) - (y3 - y1) * (x1 - x2)) * ((i - x1) * (y1 - y2) - (j - y1) * (x1 - x2)) < 0)
+//                    continue;  //1과2 -> x,3
+//                if (((x1 - x2) * (y2 - y3) - (y1 - y3) * (x2 - x3)) * ((i - x2) * (y2 - y3) - (j - y2) * (x2 - x3)) < 0)
+//                    continue; //2,3 -> x,1
+//                if (((x2 - x3) * (y3 - y1) - (y3 - y3) * (x3 - x1)) * ((i - x3) * (y3 - y1) - (j - y3) * (x3 - x1)) < 0)
+//                    continue;//3,1 -> x,2
+////http://zockr.tistory.com/83
+//                triangle = k;       //현재 k번째 삼각형 내부에 있는 것!
+//                break;
+//            }
+//
+//    // k번째 입력영상 들로네 삼각형의 좌표 지정
+//
+//            double alpha,beta;
+//            double c = (x2-x1)*(y3-y1)-(y2-y1)*(x3-x1);
+//            alpha = ((i-x1)*(y3-y1)-(j-y1)*(x3-x1)) / c;
+////                    = ((y3-y1)/c)*i - x1*(y3-y1)/c - ((x3-x1)/c)*j + y1*(x3-x1)/c;
+//
+//            beta =  ((j-y1)*(x2-x1)-(i-x1)*(y2-y1)) / c;
+////                   =  ((x2-x1)/c)*j - y1*(x2-x1)/c - ((y2-y1)/c)*i + x1*(y2-y1)/c;
+//
+//            double a1,a2,a3,a4,a5,a6;       //미리 계산해놓으면 빠름!
+//
+//            a1 = (y1*(x3-x1)/c - x1*(y3-y1)/c)*xn2 + (x1*(y2-y1)/c  - y1*(x2-x1)/c)*xn3 + xn1;
+//            a2 = ((y3-y1)/c)*xn2 - ((y2-y1)/c)*xn3;
+//            a3 = ((x2-x1)/c)*xn3 - ((x3-x1)/c)*xn2;
+//            a4 = (y1*(x3-x1)/c - x1*(y3-y1)/c)*yn2 + (x1*(y2-y1)/c  - y1*(x2-x1)/c)*yn3 + yn1;
+//            a5 = ((y3-y1)/c)*yn2 - ((y2-y1)/c)*yn3;
+//            a6 = ((x2-x1)/c)*yn3 - ((x3-x1)/c)*yn2;
+//
+//            x =  xn1 + alpha * xn2 + beta * xn3;// = a1 + a2*i + a3*j;
+//            y =  yn1 + alpha * yn2 + beta * yn3;// = a4 + a5*i + a6*j;
+//
+//            //ep 받아오기
+////
+////            c = ((j - y1) - (i - x1) * (y2 - y1)) / (y3 - y1 - x3 * y3 + x3 * y1 + x1 * y2 - x1 * y1);
+////            b = (i - x1) - c * (x3 - x1);
+////            a = 1 - (b + c);
+////
+////
+////            x = a * xn1 + b * xn2 + c * xn3;
+////            y = a * yn1 + b * yn2 + c * yn3;
+//// 얻어온 좌표로 부터 r(p) 구해오기
+//
+//            rp += (InputImage.data[i][j]-baseImage.data[x][y])*(InputImage.data[i][j]-baseImage.data[x][y]);//rp 받아오기
+////            (1-alpha-beta)*x + (1-alpha-beta)*y
+//        }
+//    }
+////if rp < w까지 반복하여
+//    __android_log_print(ANDROID_LOG_WARN, "NDK","r(p)  = %f",rp);
+//
+//    if(rp < 100){ return data; }
 
-    for (int i = 0; i < height ; i++) {
-      for (int j = 0; j < width; j++) {
-
-
-          InputImage.data[(i * width) + j + 0] = mcintArray[i * width + j + 0];
-          InputImage.data[(i * width) + j + 1] = mcintArray[i * width + j + 1];
-          InputImage.data[(i * width) + j + 2] = mcintArray[i * width + j + 2];
-
-        }
-    }
-
-    env->ReleaseIntArrayElements(inputImg, cintArray, 0);
-    //https://skyfe79.gitbooks.io/jni-tutorial/content/chapter17.html
-
-    jsize length = env->GetArrayLength(inputShape);
-    if(length == 0)
-        return nullptr;
-
-    //convert java-array to c-array jdouble[]
-    jdouble *cdoubleArray = env->GetDoubleArrayElements(inputShape, nullptr);
-
-    double datum[152] ;  //
-    //add value
-
-    for(int i = 0; i<length; i++) {
-        datum[i]= cdoubleArray[i];
-    }
-
-    length = env->GetArrayLength(inputShape);
-
-    if(length == 0)
-        return nullptr;
-
-    cdoubleArray = env->GetDoubleArrayElements(baseShape, nullptr);
-
-    double average[152] ;
-
-    for(int i = 0; i<length; i++) {
-        average[i]= cdoubleArray[i];
-    }
-//TODO    env->ReleaseDoubleArrayElements(inputArray, cdoubleArray, 0); 해줘야되지않나? 메모리누수
-//    env->ReleaseDoubleArrayElements(doubleArray, cdoubleArray, 0);
-
-
-//입력영상 흑백
-
-    cvtColor(InputImage, InputImage, CV_RGB2GRAY);
-
-//평균영상 불러오기
-    FILE* file = fopen("/sdcard//Phairy/image/i000qa.jpg" , "rb" );//전역변수로 어플 실행 마다 한번만.
-
-    Mat baseImage = imread(file, IMREAD_GRAYSCALE);
-
-//들로네 정보 파싱
-
-    FILE* pFile = fopen("/sdcard//Phairy/dela/dela.txt" , "rb" );//전역변수로 어플 실행 마다 한번만.
-    char str [1000];
-
-    fscanf (pFile, "%s", str);
-    fclose (pFile);
-
-
-    char *token1 = NULL;
-    char *token2 = NULL;
-//    char str1[] = "\n";
-    char str2[] = "\t";     // 모두 \t로 변경
-
-    token1 = strtok( str, str2 );
-
-    int p1,p2,p3;
-    std::map<int, int> delauney;    //전역변수로 어플 실행 마다 한번만.
-    int tri=0;
-    while( token1 != NULL )
-    {
-        token2 = strtok( token1, str2 );
-        p1 = (int) *token2;
-        delauney[tri*10+0] = p1;
-
-        token2 = strtok( NULL, str2 );
-        p2 = (int) *token2;
-        delauney[tri*10+1] = p2;
-
-        token2 = strtok( NULL, str2 );
-        p3 = (int) *token2;
-        delauney[tri*10+2] = p3;
-
-        tri++;
-        token1 = strtok( NULL, str2 );
-    }
-
-// delauney를 이용해 inputSh->baseSh affine 변환  이미지 마다 확인
-
-    int cols = 0;//getCols();
-    int rows = 0;//getRows();
-
-
-    double x1 = 0, x2 = 0, x3 = 0, y1 = 0, y2 = 0, y3 = 0, a = 0, b = 0, c = 0, xn1 = 0, xn2 = 0, xn3 = 0, yn1 = 0, yn2 = 0, yn3 = 0, x, y;
-    int triangle;
-    int tsize = delauney.size(); //int tsize = delauney.size();
-
-    //TODO:탐색범위 제한
-    double rp = 0;
-
-    for (int i = 0; i < cols; i++) {
-        for (int j = 0; j < rows; j++) {
-
-            /*
-                현재 위치를 affine 변환 후, 얼굴 영역인지 확인
-            */
-            //현재 점(i,j)가 입력영상의 들로네 삼각형 안에 있는지 확인
-            triangle = -1;
-
-            for (int k = 0; k < delauney.size(); k++) {
-
-                x1 = datum[2 * delauney[k*10+0]];
-                x2 = datum[2 * delauney[k*10+1]];
-                x3 = datum[2 * delauney[k*10+2]];
-
-                y1 = datum[2 * delauney[k*10+0]+0];
-                y2 = datum[2 * delauney[k*10+1]+1];
-                y3 = datum[2 * delauney[k*10+2]+2];
-
-
-                if (((x3 - x1) * (y1 - y2) - (y3 - y1) * (x1 - x2)) * ((i - x1) * (y1 - y2) - (j - y1) * (x1 - x2)) < 0)
-                    continue;  //1과2 -> x,3
-                if (((x1 - x2) * (y2 - y3) - (y1 - y3) * (x2 - x3)) * ((i - x2) * (y2 - y3) - (j - y2) * (x2 - x3)) < 0)
-                    continue; //2,3 -> x,1
-                if (((x2 - x3) * (y3 - y1) - (y3 - y3) * (x3 - x1)) * ((i - x3) * (y3 - y1) - (j - y3) * (x3 - x1)) < 0)
-                    continue;//3,1 -> x,2
-//http://zockr.tistory.com/83
-                triangle = k;       //현재 k번째 삼각형 내부에 있는 것!
-                break;
-            }
-
-    // k번째 입력영상 들로네 삼각형의 좌표 지정
-
-
-            c = ((j - y1) - (i - x1) * (y2 - y1)) / (y3 - y1 - x3 * y3 + x3 * y1 + x1 * y2 - x1 * y1);
-            b = (i - x1) - c * (x3 - x1);
-            a = 1 - (b + c);
-
-
-            x = a * xn1 + b * xn2 + c * xn3;
-            y = a * yn1 + b * yn2 + c * yn3;
-// 얻어온 좌표로 부터 r(p) 구해오기
-            rp += (InputImage.data[i][j]-baseImage.data[x][y])*(InputImage.data[i][j]-baseImage.data[x][y]);//rp 받아오기
-        }
-    }
-//if rp < w까지 반복하여
-    __android_log_print(ANDROID_LOG_WARN, "NDK","r(p)  = %f",rp);
-
-    if(rp < 100){ return data; }
-
-    return data;
+    return InputImage;
 
 }
-
 
 
 JNIEXPORT double JNICALL Java_com_android_hairyd_NativeFunc_getRows(JNIEnv *, jobject,
                                                                     jlong addrGray) {
 
-    _finddata_t fd;
-    long handle;
-    int result = 1;
-    handle = _findfirst(".\\*.*", &fd);  //현재 폴더 내 모든 파일을 찾는다.
-
-    if (handle == -1)
-    {
-        printf("There were no files.\n");
-        return;
-    }
-
-    String name="/sdcard//Phairy/image/";
-    while (result != -1)
-    {
-
-        FILE* file = fopen( name + fd.name , "rb" );//전역변수로 어플 실행 마다 한번만.
-        Mat baseImage = imread(file, IMREAD_GRAYSCALE);
-
-
-
-        result = _findnext(handle, &fd);
-    }
-
-    _findclose(handle);
-
+//    _finddata_t fd;
+//    long handle;
+//    int result = 1;
+//    handle = _findfirst(".\\*.*", &fd);  //현재 폴더 내 모든 파일을 찾는다.
+//
+//    if (handle == -1)
+//    {
+//        printf("There were no files.\n");
+//        return;
+//    }
+//
+//    String name="/sdcard//Phairy/image/";
+//    while (result != -1)
+//    {
+//
+//        FILE* file = fopen( name + fd.name , "rb" );//전역변수로 어플 실행 마다 한번만.
+//        Mat baseImage = imread(file, IMREAD_GRAYSCALE);
+//
+//
+//
+//        result = _findnext(handle, &fd);
+//    }
+//
+//    _findclose(handle);
+//
     Mat &mGr = *(Mat *) addrGray;
 
     return mGr.rows;
 
 }
 
+
+JNIEXPORT Mat JNICALL Java_com_android_hairyd_NativeFunc_getGradient(JNIEnv *, jobject,
+                                                                     jlong addrGray) {
+
+    Mat &mGr = *(Mat *) addrGray;
+    Mat gradient(mGr.rows, mGr.cols, CV_8UC2, 0);        //x채널과 y채널
+
+    for (int i = 0; i < mGr.cols; i++) {
+        for (int j = 0; j < mGr.rows; j++) {
+
+            if (j == 0 || j == mGr.rows - 1) {   //맨 왼쪽이거나 맨 오른쪽
+                gradient.data[(i * mGr.rows) + j + 0] = 0;
+            } else {
+                gradient.data[(i * mGr.rows) + j + 0] = mGr.data[(i * mGr.rows) + j - 1] -
+                                                        mGr.data[(i * mGr.rows) + j +
+                                                                 +1];   //x gradient , mGr의 왼쪽과 오른쪽의 차 (왼쪽-오른쪽)
+            }
+
+            if (i == 0 || i == mGr.cols - 1) {   //맨 위거나 맨 아래
+                gradient.data[(i * mGr.rows) + j + 1] = 0;
+            } else {
+                gradient.data[(i * mGr.rows) + j + 1] = mGr.data[(i - 1) * mGr.rows + j] -
+                                                        mGr.data[(i + 1) * mGr.rows +
+                                                                 j];     //y gradient , mGr의 위쪽과 아래쪽의 차 (위-아래)
+            }
+
+
+        }
+    }
+    return gradient;
+
+}
+
+
 JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_getPCA(JNIEnv *, jobject,
                                                                  jlong left,
                                                                  jlong right, jint seek) {
 
-    __android_log_print(ANDROID_LOG_WARN, "NDK","starting getPCA()...");
+    __android_log_print(ANDROID_LOG_WARN, "NDK", "starting getPCA()...");
 //파일 입력
     /*
 
@@ -520,6 +580,90 @@ JNIEXPORT void JNICALL Java_com_android_hairyd_NativeFunc_getPCA(JNIEnv *, jobje
                         */
 
 }
+// 삼각형 내부의 점 http://blog.naver.com/masca140/70149652459
+class POINT {
+private:
+public:
+    double x;
+    double y;
+
+    POINT() {
+
+    }
+
+    POINT(double mx, double my) {
+        x = mx;
+        y = my;
+    }
+};
+void LineIntersect(POINT *ptFirst, float fFirstSlope, POINT *ptSecont, float fSecondSlope,
+                   POINT *result) {
+
+    result->x = float(fFirstSlope * ptFirst->x - fSecondSlope * ptSecont->x +
+                      ptSecont->y - ptFirst->y) / float(fFirstSlope - fSecondSlope);
+
+    result->y = fFirstSlope * (result->x - ptFirst->x) + ptFirst->y;
+
 }
+
+JNIEXPORT jboolean JNICALL Java_com_android_hairyd_NativeFunc_IsIntersect(JNIEnv *, jobject,
+                                                                          jdouble ax, jdouble ay,
+                                                                          jdouble bx, jdouble by,
+                                                                          jdouble cx, jdouble cy,
+                                                                          jdouble x, jdouble y) {
+
+
+    POINT ptPoints[3] = {POINT(ax, ay), POINT(bx, by), POINT(cx, cy)};
+
+    POINT ptTarget = POINT(x, y);
+
+    //원점 좌표가 필요 하다.
+    POINT ptOrigin[3];
+
+    //시작점, 끝점, 두 직선의 교차점
+    POINT ptStart, ptEnd, ptLineIntersect;
+
+    //현재 좌표 기울기, 계산할 두 좌표 기울기
+    float fBeginSlope, fLineSlope;
+
+    float fLength1, fLength2;
+
+    for (int i = 0; i < 3; ++i) {
+        //첫번째 좌표 기준으로 원점 으로 변환 (윈도우 -> 데카르트 좌표계)
+        ptOrigin[0].x = ptPoints[0].x - ptPoints[i].x;
+        ptOrigin[0].y = ptPoints[i].y - ptPoints[0].y;
+        ptOrigin[1].x = ptPoints[1].x - ptPoints[i].x;
+        ptOrigin[1].y = ptPoints[i].y - ptPoints[1].y;
+        ptOrigin[2].x = ptPoints[2].x - ptPoints[i].x;
+        ptOrigin[2].y = ptPoints[i].y - ptPoints[2].y;
+
+
+        ptStart = ptOrigin[i];
+        ptEnd.x = ptTarget.x - ptPoints[i].x;
+        ptEnd.y = ptPoints[i].y - ptTarget.y;
+        //0으로 나누기 검사
+        if (ptEnd.x - ptStart.x == 0) fBeginSlope = ptEnd.y - ptStart.y;
+        else fBeginSlope = float(ptEnd.y - ptStart.y) / float(ptEnd.x - ptStart.x);
+        fLineSlope = (float) (ptOrigin[(i + 2) % 3].y - ptOrigin[(i + 1) % 3].y) /
+                     (float) (ptOrigin[(i + 2) % 3].x - ptOrigin[(i + 1) % 3].x);
+
+        //두 직선의 교차점 구하기
+        LineIntersect(&ptStart, fBeginSlope, &ptOrigin[(i + 1) % 3],
+                      fLineSlope, &ptLineIntersect);
+
+        //현재 거리가 교차점 거리보다 크면 범위 밖
+        fLength1 = sqrt(pow(float(ptEnd.x), 2) + pow(float(ptEnd.y), 2));
+        fLength2 = sqrt(pow(float(ptLineIntersect.x), 2) + pow(float(ptLineIntersect.y), 2));
+
+
+        if (fLength2 < fLength1) return FALSE;
+
+    }
+
+    return TRUE;
+}
+
+}
+
 
 

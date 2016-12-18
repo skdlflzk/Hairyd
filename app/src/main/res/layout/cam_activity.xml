@@ -25,6 +25,13 @@
         android:text="test"
         android:id="@+id/test"
         android:layout_gravity="right" />
+    <TextView
+        android:id="@+id/ing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="18dp"
+        android:text="ready..." />
 
     <TextView
         android:id="@+id/textView"
